@@ -1,0 +1,2 @@
+source_db	accession	internal_dataset_id	snapshot_id	extraction_version	extraction_lineage_id	build_stage
+REQUIRED	REQUIRED	REQUIRED	REQUIRED	REQUIRED	REQUIRED	REQUIRED

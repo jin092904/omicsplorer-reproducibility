@@ -1,0 +1,2 @@
+REQUIRED: copy the exact metadata-structuring system and user prompt template here.
+Do not include credentials, private hostnames, or unpublished sensitive data.

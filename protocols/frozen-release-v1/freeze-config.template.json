@@ -1,0 +1,118 @@
+{
+  "schema_version": "omicsplorer-frozen-eval-config-v1",
+  "release_id": "REQUIRED_RELEASE_ID",
+  "protocol_id": "gpb-application-note-hard-facet-v1",
+  "protocol_path": "PROTOCOL.md",
+  "protocol_sha256": "REQUIRED_PROTOCOL_SHA256",
+  "corpus": {
+    "snapshot_id": "REQUIRED_CORPUS_SNAPSHOT_ID",
+    "cutoff_utc": "REQUIRED_ISO_8601_UTC_CUTOFF",
+    "accession_manifest_path": "corpus-accessions.tsv",
+    "accession_manifest_sha256": "REQUIRED_ACCESSION_MANIFEST_SHA256",
+    "stores_manifest_path": "stores-manifest.json",
+    "stores_manifest_sha256": "REQUIRED_STORES_MANIFEST_SHA256",
+    "row_count": 0,
+    "deduplication_rule": "REQUIRED_DEDUPLICATION_RULE",
+    "database_snapshot_id": "REQUIRED_DATABASE_SNAPSHOT_ID",
+    "qdrant_snapshot_id": "REQUIRED_QDRANT_SNAPSHOT_ID",
+    "opensearch_snapshot_id": "REQUIRED_OPENSEARCH_SNAPSHOT_ID",
+    "schema_revision": "REQUIRED_ALEMBIC_OR_SCHEMA_REVISION"
+  },
+  "models": {
+    "metadata_structuring": {
+      "lineage_manifest_path": "metadata-structuring-lineages.json",
+      "lineage_manifest_sha256": "REQUIRED_STRUCTURING_LINEAGE_MANIFEST_SHA256",
+      "row_lineage_field": "extraction_lineage_id",
+      "row_extraction_version_field": "extraction_version",
+      "row_build_stage_field": "build_stage",
+      "mixed_history_policy": "Record every retained corpus row's extraction version, build stage, and lineage; report mixed historical lineages and non-model/stub rows separately."
+    },
+    "corpus_embedding": {
+      "checkpoint": "REQUIRED_IMMUTABLE_CHECKPOINT",
+      "revision": "REQUIRED_MODEL_REVISION",
+      "digest_sha256": "REQUIRED_MODEL_DIGEST_SHA256",
+      "quantization": "REQUIRED_QUANTIZATION",
+      "serving_engine": "REQUIRED_ENGINE_AND_VERSION",
+      "instruction_prefix": "REQUIRED_DOCUMENT_PREFIX_OR_<none>",
+      "pooling": "REQUIRED_POOLING",
+      "truncation_dimension": 1024
+    },
+    "query_embedding": {
+      "checkpoint": "REQUIRED_IMMUTABLE_CHECKPOINT",
+      "revision": "REQUIRED_MODEL_REVISION",
+      "digest_sha256": "REQUIRED_MODEL_DIGEST_SHA256",
+      "quantization": "REQUIRED_QUANTIZATION",
+      "serving_engine": "REQUIRED_ENGINE_AND_VERSION",
+      "instruction_prefix": "REQUIRED_QUERY_PREFIX_OR_<none>",
+      "pooling": "REQUIRED_POOLING",
+      "truncation_dimension": 1024
+    },
+    "reranker_checkpoint": "REQUIRED_EFFECTIVE_RERANKER_CHECKPOINT",
+    "reranker_revision": "REQUIRED_RERANKER_REVISION",
+    "reranker_digest_sha256": "REQUIRED_RERANKER_DIGEST_SHA256",
+    "reranker_quantization": "REQUIRED_RERANKER_QUANTIZATION",
+    "query_understanding": null,
+    "translation": {
+      "checkpoint": "REQUIRED_TRANSLATION_CHECKPOINT",
+      "revision": "REQUIRED_TRANSLATION_REVISION",
+      "digest_sha256": "REQUIRED_TRANSLATION_DIGEST_SHA256",
+      "quantization": "REQUIRED_TRANSLATION_QUANTIZATION",
+      "serving_engine": "REQUIRED_TRANSLATION_ENGINE_AND_VERSION",
+      "prompt_path": "translation-prompt.txt",
+      "prompt_sha256": "REQUIRED_TRANSLATION_PROMPT_SHA256",
+      "options_path": "translation-options.json",
+      "options_sha256": "REQUIRED_TRANSLATION_OPTIONS_SHA256",
+      "cache_policy": "REQUIRED_TRANSLATION_CACHE_POLICY"
+    }
+  },
+  "retrieval": {
+    "corpus": "production",
+    "lexical_index": "REQUIRED_IMMUTABLE_INDEX_ID",
+    "dense_collection": "REQUIRED_IMMUTABLE_COLLECTION_ID",
+    "lexical_candidate_count": 200,
+    "dense_candidate_count": 200,
+    "rrf_k": 60,
+    "reranker_top_n": 20,
+    "access_preference": "open_only",
+    "auto_translate": true,
+    "query_understanding_enabled": false,
+    "effective_trace_required": true,
+    "effective_configuration_path": "effective-server-config.json",
+    "effective_configuration_sha256": "REQUIRED_EFFECTIVE_SERVER_CONFIGURATION_SHA256",
+    "fallback_policy": "Any dense, lexical, translation, or reranker fallback invalidates that mode-comparison observation; do not relabel it as the requested mode.",
+    "accession_shortcut_enabled": true,
+    "cardinality_boost_enabled": true
+  },
+  "evaluation": {
+    "query_sets": [
+      "hard_queries"
+    ],
+    "languages": [
+      "en",
+      "ko"
+    ],
+    "modes": [
+      "bm25_only",
+      "dense_only",
+      "rrf",
+      "rrf_rerank"
+    ],
+    "top_k": 20,
+    "score_k": 10,
+    "seed": 42,
+    "timeout_s": 180.0,
+    "warmup": "unscored_recorded",
+    "primary_metrics": [
+      "facet_present_macro",
+      "facet_conjunctive_macro"
+    ],
+    "failure_policy": "report_separately_no_imputation",
+    "expected_query_count": 49
+  },
+  "runtime": {
+    "dependency_lock_path": "uv.lock",
+    "dependency_lock_sha256": "REQUIRED_UV_LOCK_SHA256",
+    "container_image_digest": "sha256:REQUIRED_CONTAINER_IMAGE_DIGEST",
+    "hardware": "REQUIRED_NON_IDENTIFYING_CPU_GPU_RAM_DESCRIPTION"
+  }
+}

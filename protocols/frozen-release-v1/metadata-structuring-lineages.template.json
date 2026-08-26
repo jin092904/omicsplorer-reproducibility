@@ -1,0 +1,23 @@
+{
+  "schema_version": "omicsplorer-structuring-lineages-v1",
+  "mixed_history_note": "REQUIRED_DESCRIPTION_OF_LINEAGE_DISTRIBUTION_AND_LIMITATIONS",
+  "lineages": [
+    {
+      "lineage_id": "REQUIRED_STABLE_LINEAGE_ID",
+      "extractor_kind": "local_model",
+      "checkpoint": "REQUIRED_IMMUTABLE_EXTRACTOR_CHECKPOINT",
+      "revision": "REQUIRED_EXTRACTOR_REVISION",
+      "weight_digest_sha256": "REQUIRED_EXTRACTOR_WEIGHT_DIGEST_SHA256",
+      "quantization": "REQUIRED_EXTRACTOR_QUANTIZATION",
+      "serving_engine": "REQUIRED_EXTRACTOR_ENGINE_AND_VERSION",
+      "prompt_path": "metadata-structuring-prompt.txt",
+      "prompt_sha256": "REQUIRED_STRUCTURING_PROMPT_SHA256",
+      "schema_path": "metadata-structuring-schema.json",
+      "schema_sha256": "REQUIRED_STRUCTURING_SCHEMA_SHA256",
+      "options_path": "metadata-structuring-options.json",
+      "options_sha256": "REQUIRED_STRUCTURING_OPTIONS_SHA256",
+      "deterministic_postprocessing_revision": "REQUIRED_POSTPROCESSING_COMMIT_OR_DIGEST",
+      "limitations": "REQUIRED_LINEAGE_SPECIFIC_LIMITATIONS"
+    }
+  ]
+}

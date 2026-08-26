@@ -1,0 +1,9 @@
+{
+  "created_at_utc": "2026-07-20T08:25:10.615551Z",
+  "eligible_n": 13,
+  "limitation": "Pilot known-item sample; not human topical relevance.",
+  "requested_n": 12,
+  "seed": 20260720,
+  "selection_frame": "Observed in both NCBI GEO and OmicsDI pilot top-10 pools",
+  "source_run": "external_pilot_30q_20260720_run1 (private operational source; not redistributed)"
+}

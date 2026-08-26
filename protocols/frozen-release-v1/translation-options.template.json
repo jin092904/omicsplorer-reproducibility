@@ -1,0 +1,6 @@
+{
+  "temperature": 0,
+  "seed": 42,
+  "decoding": "REQUIRED_EFFECTIVE_DECODING_POLICY",
+  "parser_revision": "REQUIRED_TRANSLATION_POSTPROCESSING_REVISION"
+}

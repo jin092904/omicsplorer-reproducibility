@@ -1,0 +1,21 @@
+.env
+.venv/
+build/
+dist/
+*.egg-info/
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# A frozen release is added only after its offline validator reports GO.
+releases/*
+!releases/README.md
+
+# Raw responses from external services are not distributed in this repository.
+results/**/raw/
+*.restricted.*

@@ -1,0 +1,25 @@
+{
+  "schema_version": "omicsplorer-store-evidence-v1",
+  "captured_at_utc": "REQUIRED",
+  "database": {
+    "snapshot_id": "REQUIRED",
+    "row_count": 0,
+    "accession_membership_count": 0,
+    "dataset_id_set_sha256": "REQUIRED",
+    "schema_revision": "REQUIRED"
+  },
+  "qdrant": {
+    "snapshot_id": "REQUIRED",
+    "point_count": 0,
+    "dataset_id_set_sha256": "REQUIRED",
+    "collection_config_sha256": "REQUIRED"
+  },
+  "opensearch": {
+    "snapshot_id": "REQUIRED",
+    "document_count": 0,
+    "dataset_id_set_sha256": "REQUIRED",
+    "mapping_sha256": "REQUIRED",
+    "settings_sha256": "REQUIRED"
+  },
+  "cross_store_mismatch_count": 0
+}
