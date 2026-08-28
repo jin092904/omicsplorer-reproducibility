@@ -1,9 +1,12 @@
 # OmicsPlorer manuscript reproducibility materials
 
 This repository contains the evaluation code, public query definitions, artifact contracts,
-and selected derived results being prepared for an OmicsPlorer Application Note. The
-OmicsPlorer product source code and deployment configuration are proprietary and are not part
-of this repository.
+and selected derived results being prepared for an OmicsPlorer Application Note. The evolving
+[OmicsPlorer application source](https://github.com/jin092904/OmicsPlorer) is published
+separately under AGPL-3.0-or-later. Production credentials, the deployed configuration,
+private user data, model weights, and the production corpus are not included in either
+repository; the frozen evaluation release will contain only the publishable configuration
+evidence and derived artifacts defined by this repository's protocol.
 
 ## Current status
 
