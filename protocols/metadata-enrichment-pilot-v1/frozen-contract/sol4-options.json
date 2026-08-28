@@ -1,5 +1,10 @@
 {
   "code_fence_stripping": true,
+  "downstream_validator": {
+    "package": "jsonschema",
+    "schema_draft": "https://json-schema.org/draft/2020-12/schema",
+    "version": "4.26.0"
+  },
   "first_pass_request": {
     "json": {
       "model": "gemma4:31b",
