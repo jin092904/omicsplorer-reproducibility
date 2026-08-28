@@ -15,6 +15,8 @@ release templates are implemented, but no release directory currently satisfies 
 corpus, model, configuration, request-trace, and row-level lineage checks. Accordingly:
 
 - unit-test success demonstrates evaluator behavior only;
+- the application-source trace contract and evaluation-client opt-in are
+  implemented, but no eligible frozen deployment trace has been captured;
 - the hard-query tables are historical internal regression aggregates;
 - the browser run is a descriptive observation from one ingress, date, and measurement setup;
 - none of these files establishes superiority over another system, a service-level objective,

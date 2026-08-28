@@ -60,10 +60,11 @@ NO-GO conditions.
    mode, effective mode, effective server-configuration SHA-256, component
    strict state values for lexical/dense/reranker/translation/query
    understanding, enabled/applied states for accession shortcut and cardinality
-   boost, and fallback events. The current response contract does not yet
-   provide this trace; therefore the frozen internal regression rerun remains
-   NO-GO until that additive, non-user-facing evidence is available or an
-   equivalent fail-closed evaluation endpoint is implemented.
+   boost, and fallback events. The public application source and this
+   repository's evaluation client implement the additive trace contract and
+   opt-in header. No frozen deployment response has yet been captured against a
+   completed canonical server configuration, so the internal regression rerun
+   remains NO-GO until those per-request traces pass the offline validator.
 
 ## Prespecified run
 
