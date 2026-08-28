@@ -40,6 +40,7 @@ class ComponentResult:
     status: Status
     checks: dict[str, bool]
     blockers: list[str]
+    observations: dict[str, int] | None = None
 
 
 def assess_dataset_columns(columns: set[str]) -> ComponentResult:
@@ -54,6 +55,42 @@ def assess_dataset_columns(columns: set[str]) -> ComponentResult:
             "required_accession_lineage_columns_found": not missing,
         },
         blockers=[f"missing datasets column: {name}" for name in missing],
+    )
+
+
+def assess_dataset_values(observations: dict[str, int]) -> ComponentResult:
+    """Assess aggregate completeness without exposing any corpus row values."""
+
+    total = observations["row_count"]
+    blockers: list[str] = []
+    if total == 0:
+        blockers.append("datasets table is empty")
+    labels = {
+        "invalid_identity_count": "rows with a missing dataset identity",
+        "missing_extraction_version_count": "rows missing extraction_version",
+        "missing_extraction_lineage_id_count": "rows missing extraction_lineage_id",
+        "missing_build_stage_count": "rows missing build_stage",
+        "duplicate_accession_count": "duplicate source_db/source_id accessions",
+    }
+    for key, label in labels.items():
+        count = observations[key]
+        if count:
+            blockers.append(f"{label}: {count}")
+    return ComponentResult(
+        component="postgresql",
+        status="ready" if not blockers else "blocked",
+        checks={
+            "corpus_is_nonempty": total > 0,
+            "row_identity_complete": observations["invalid_identity_count"] == 0,
+            "row_lineage_complete": (
+                observations["missing_extraction_version_count"] == 0
+                and observations["missing_extraction_lineage_id_count"] == 0
+                and observations["missing_build_stage_count"] == 0
+            ),
+            "accessions_are_unique": observations["duplicate_accession_count"] == 0,
+        },
+        blockers=blockers,
+        observations=observations,
     )
 
 
@@ -95,11 +132,71 @@ async def probe_postgresql(database_url: str | None) -> ComponentResult:
         )
         columns = {str(record["column_name"]) for record in records}
         assessed = assess_dataset_columns(columns)
+        if assessed.status != "ready":
+            return ComponentResult(
+                component=assessed.component,
+                status=assessed.status,
+                checks={
+                    "connection_configured": True,
+                    "read_probe_succeeded": True,
+                    **assessed.checks,
+                },
+                blockers=assessed.blockers,
+            )
+        row = await connection.fetchrow(
+            """
+            SELECT COUNT(*)::bigint AS row_count,
+                   COUNT(*) FILTER (
+                       WHERE id IS NULL
+                          OR NULLIF(BTRIM(source_db), '') IS NULL
+                          OR NULLIF(BTRIM(source_id), '') IS NULL
+                   )::bigint AS invalid_identity_count,
+                   COUNT(*) FILTER (
+                       WHERE NULLIF(BTRIM(extraction_version), '') IS NULL
+                   )::bigint AS missing_extraction_version_count,
+                   COUNT(*) FILTER (
+                       WHERE NULLIF(BTRIM(extraction_lineage_id), '') IS NULL
+                   )::bigint AS missing_extraction_lineage_id_count,
+                   COUNT(*) FILTER (
+                       WHERE NULLIF(BTRIM(build_stage), '') IS NULL
+                   )::bigint AS missing_build_stage_count,
+                   (
+                       COUNT(*) - COUNT(DISTINCT (source_db, source_id))
+                   )::bigint AS duplicate_accession_count
+              FROM datasets
+            """
+        )
+        if row is None:
+            return ComponentResult(
+                component="postgresql",
+                status="blocked",
+                checks={"connection_configured": True, "read_probe_succeeded": False},
+                blockers=["aggregate dataset completeness query returned no row"],
+            )
+        values = assess_dataset_values(
+            {
+                key: int(row[key])
+                for key in (
+                    "row_count",
+                    "invalid_identity_count",
+                    "missing_extraction_version_count",
+                    "missing_extraction_lineage_id_count",
+                    "missing_build_stage_count",
+                    "duplicate_accession_count",
+                )
+            }
+        )
         return ComponentResult(
-            component=assessed.component,
-            status=assessed.status,
-            checks={"connection_configured": True, "read_probe_succeeded": True, **assessed.checks},
-            blockers=assessed.blockers,
+            component=values.component,
+            status=values.status,
+            checks={
+                "connection_configured": True,
+                "read_probe_succeeded": True,
+                **assessed.checks,
+                **values.checks,
+            },
+            blockers=values.blockers,
+            observations=values.observations,
         )
     except (OSError, TimeoutError, asyncpg.PostgresError) as exc:
         return _unreachable("postgresql", f"read probe failed: {type(exc).__name__}")
@@ -171,7 +268,7 @@ def build_report(results: list[ComponentResult]) -> dict[str, Any]:
     return {
         "schema_version": "omicsplorer-evidence-preflight-v1",
         "captured_at_utc": datetime.now(UTC).isoformat(),
-        "ready_for_evidence_collection": not blockers,
+        "ready_for_evidence_collection": all(result.status == "ready" for result in results),
         "components": [asdict(result) for result in results],
         "blocking_reasons": blockers,
         "evidence_boundary": (
