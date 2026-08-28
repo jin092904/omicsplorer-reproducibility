@@ -98,7 +98,7 @@ Fill and rename `freeze-config.template.json`. Likewise copy the effective
 server configuration, translation prompt, and structuring lineage, prompt,
 translation options, schema, and options templates to the non-`.template` names referenced by the
 config, replace every placeholder with exported evidence, and calculate all
-SHA-256 values. Then run from `evaluation/`. The
+SHA-256 values. Then run from the repository root. The
 validator hard-codes this protocol ID's query-set name, language and mode order,
 49-query count, top/scoring depth, seed, timeout, warmup, metrics, and failure
 policy; editing the config cannot silently weaken those conditions.
@@ -109,7 +109,7 @@ uv run --frozen --offline python -m genofinder_eval.runners.run_hard_queries \
   --data-dir data/hard_queries \
   --modes bm25_only dense_only rrf rrf_rerank \
   --top-k 20 --score-k 10 --seed 42 \
-  --freeze-config release_templates/gpb-application-note-v1/freeze-config.json \
+  --freeze-config protocols/frozen-release-v1/freeze-config.json \
   --release-dir releases/gpb-application-note-v1
 ```
 
