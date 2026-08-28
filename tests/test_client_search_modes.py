@@ -48,8 +48,8 @@ _OK_RESPONSE = {
 
 
 @respx.mock
-async def test_search_default_mode_no_eval_header() -> None:
-    """기본 (rrf_rerank + production) 호출은 X-Eval-Mode 헤더 미전송."""
+async def test_search_default_mode_requests_evaluation_trace() -> None:
+    """기본 arm도 요청별 effective-path trace를 위해 평가 헤더를 전송한다."""
     route = respx.post("http://localhost:8000/api/v1/search").mock(
         return_value=httpx.Response(200, json=_OK_RESPONSE)
     )
@@ -58,7 +58,7 @@ async def test_search_default_mode_no_eval_header() -> None:
     assert resp.results[0].dataset_id == "abc"
     assert route.called
     sent = route.calls.last.request
-    assert "X-Eval-Mode" not in sent.headers
+    assert sent.headers["X-Eval-Mode"] == "1"
 
 
 @respx.mock

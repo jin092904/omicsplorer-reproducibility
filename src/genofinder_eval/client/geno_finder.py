@@ -96,6 +96,7 @@ class _SearchResponseMin(BaseModel):
     servable_total: int | None = None
     original_query: str | None = None
     translated_query: str | None = None
+    evaluation_trace: dict[str, Any] | None = None
     client_attempts: int = 1
     http_status: int = 200
     response_body_sha256: str | None = None
@@ -162,7 +163,8 @@ class GenoFinderClient:
         Args:
             query_text: 검색 query.
             top_k: 결과 갯수 상한 (api 의 page_size 에 매핑, 1-100).
-            mode: 4-system ablation 모드. non-default 시 X-Eval-Mode 헤더 자동 추가.
+            mode: 4-system ablation 모드. 모든 평가 호출은 X-Eval-Mode 헤더를 보내
+                서버의 요청별 effective-path trace를 활성화한다.
             lang: 요청에 명시하는 언어 메타정보.
             corpus: 'production' | 'biocaddie_2016_eval'.
             auto_translate: 비ASCII 검색어의 서버측 번역 허용 여부. 동결 평가에서는
@@ -189,9 +191,10 @@ class GenoFinderClient:
         if filters:
             body.update(filters)
 
-        headers: dict[str, str] = {}
-        if mode != SearchMode.RRF_RERANK or corpus != "production":
-            headers["X-Eval-Mode"] = "1"
+        # Even the default rrf_rerank/production arm must opt into the server's
+        # additive effective-path trace. Without this header, that arm cannot
+        # satisfy the frozen-release contract.
+        headers = {"X-Eval-Mode": "1"}
 
         logger.info(
             "search_request",

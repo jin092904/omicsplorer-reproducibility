@@ -10,7 +10,8 @@ OmicsPlorer `/api/v1/search` 가 본 모드 enum 값을 `mode` field 로 받는�
                   논문 평가에서는 effective model digest + top-N 을 응답 trace로 기록해야 함.
 
 Safety: `mode != RRF_RERANK` 호출은 API 측에서 `X-Eval-Mode` 헤더를 요구하여 production 의
-실수 호출을 차단한다 (Step 2.5 patch).
+실수 호출을 차단한다. 평가 client는 기본 mode에도 이 헤더를 보내 요청별 effective-path
+trace를 명시적으로 활성화한다.
 """
 from __future__ import annotations
 
