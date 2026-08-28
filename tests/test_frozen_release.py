@@ -408,6 +408,17 @@ class _FakeClient:
         return _FakeResponse(response)
 
 
+class _InvalidWarmupClient(_FakeClient):
+    call_count = 0
+
+    async def search(self, query_text: str, **kwargs: Any) -> _FakeResponse:
+        type(self).call_count += 1
+        response = await super().search(query_text, **kwargs)
+        if query_text.startswith("warmup query"):
+            response.payload["evaluation_trace"]["configuration_sha256"] = "0" * 64
+        return response
+
+
 def _commit_all(repo: Path) -> None:
     subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
     subprocess.run(["git", "config", "user.email", "test@example.invalid"], cwd=repo, check=True)
@@ -630,6 +641,40 @@ def test_effective_trace_rejects_partially_scored_rerank_results(
     assert any("result 2 lacks a reranker score" in issue for issue in issues)
     assert any("nonnumeric rerank score" in issue for issue in issues)
     assert any("nonnumeric top-level score" in issue for issue in issues)
+
+
+async def test_frozen_runner_aborts_after_invalid_warmup_trace(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    data_dir = _make_query_data(tmp_path)
+    config_path = _make_config(tmp_path)
+    _commit_all(tmp_path)
+    monkeypatch.setenv("GENOFINDER_BEARER_TOKEN", "token-for-test")
+    _InvalidWarmupClient.call_count = 0
+
+    release_dir = tmp_path / "release"
+    with pytest.raises(ValueError, match="warmup effective path is invalid"):
+        await run(
+            set_name="hard_queries",
+            data_dir=data_dir,
+            top_k=20,
+            score_k=10,
+            modes=["bm25_only", "dense_only", "rrf", "rrf_rerank"],
+            seed=42,
+            release_dir=release_dir,
+            freeze_config_path=config_path,
+            repo=tmp_path,
+            client_factory=_InvalidWarmupClient,
+        )
+
+    assert _InvalidWarmupClient.call_count == 1
+    warmup = json.loads((release_dir / "warmup.json").read_text(encoding="utf-8"))
+    assert warmup["outcome"] == "invalid_effective_path"
+    assert warmup["trace_issues"] == ["evaluation_trace.configuration_sha256 mismatch"]
+    manifest = json.loads((release_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["status"] == "aborted"
+    assert manifest["submission_eligible"] is False
+    assert manifest["counts"]["attempted"] == 0
 
 
 async def test_frozen_runner_separates_success_zero_and_failure(

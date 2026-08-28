@@ -445,10 +445,12 @@ async def run(
         async with factory(timeout_s=timeout_s) as client:
             if frozen and warmup_policy == "unscored_recorded":
                 assert release_dir is not None
+                assert config is not None
+                warmup_query = "warmup query for reranker cold start"
                 warm_started = time.perf_counter()
                 try:
                     response = await client.search(
-                        query_text="warmup query for reranker cold start",
+                        query_text=warmup_query,
                         top_k=5,
                         mode=SearchMode.RRF_RERANK,
                         lang="en",
@@ -456,11 +458,6 @@ async def run(
                         auto_translate=auto_translate,
                         access_preference=access_preference,
                     )
-                    warmup = {
-                        "outcome": "success",
-                        "wall_ms": (time.perf_counter() - warm_started) * 1000,
-                        "response": _json_safe(response),
-                    }
                 except Exception as exc:
                     warmup = {
                         "outcome": "failure",
@@ -469,7 +466,25 @@ async def run(
                     }
                     write_json(release_dir / "warmup.json", warmup)
                     raise
+                warmup_response_dict = dict(_json_safe(response))
+                trace_issues = frozen_response_path_issues(
+                    config=config,
+                    mode=SearchMode.RRF_RERANK.value,
+                    lang="en",
+                    query_text=warmup_query,
+                    response=warmup_response_dict,
+                )
+                warmup = {
+                    "outcome": "success" if not trace_issues else "invalid_effective_path",
+                    "wall_ms": (time.perf_counter() - warm_started) * 1000,
+                    "response": warmup_response_dict,
+                    "trace_issues": trace_issues,
+                }
                 write_json(release_dir / "warmup.json", warmup)
+                if trace_issues:
+                    raise ValueError(
+                        "frozen warmup effective path is invalid: " + "; ".join(trace_issues)
+                    )
             elif not frozen:
                 await warmup_reranker(client)
 
