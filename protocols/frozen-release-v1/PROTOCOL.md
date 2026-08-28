@@ -94,6 +94,24 @@ NO-GO conditions.
 
 ## Collection command
 
+Before creating any snapshot or export, run the read-only deployment preflight
+from the repository root with `DATABASE_URL`, `QDRANT_URL`, and
+`OPENSEARCH_URL` supplied through the process environment. Credentials and
+connection URLs are never written to its report.
+
+```bash
+uv run --frozen --offline python scripts/preflight_frozen_evidence.py \
+  --qdrant-collection datasets_v2 \
+  --opensearch-index datasets_v2 \
+  --output evidence-preflight.json
+```
+
+Exit status 0 means only that the configured stores and required dataset
+lineage columns are readable. The report is an operator preflight, not a
+snapshot, corpus manifest, cross-store comparison, performance result, or
+`RELEASE GO` artifact. Do not add it to a submission archive as a substitute
+for the evidence below.
+
 Fill and rename `freeze-config.template.json`. Likewise copy the effective
 server configuration, translation prompt, and structuring lineage, prompt,
 translation options, schema, and options templates to the non-`.template` names referenced by the
