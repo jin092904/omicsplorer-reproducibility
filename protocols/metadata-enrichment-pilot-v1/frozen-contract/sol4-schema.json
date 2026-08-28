@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cell_types": {
+      "items": {
+        "maxLength": 80,
+        "minLength": 1,
+        "pattern": "^(?!UBERON:|CL:|MONDO:|EFO:|NCBITaxon:).+$",
+        "type": "string"
+      },
+      "maxItems": 8,
+      "type": "array"
+    },
+    "cohort_design": {
+      "additionalProperties": false,
+      "properties": {
+        "design_type": {
+          "enum": [
+            "paired",
+            "longitudinal",
+            "case_control",
+            "cross_species",
+            "dose_response",
+            "comparative",
+            "cross_sectional",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        "groups": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "criteria": {
+                "maxLength": 200,
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              "n": {
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "role": {
+                "enum": [
+                  "case",
+                  "control",
+                  "treatment",
+                  "comparison"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "role",
+              "n",
+              "criteria"
+            ],
+            "type": "object"
+          },
+          "maxItems": 12,
+          "type": "array"
+        }
+      },
+      "required": [
+        "design_type",
+        "groups"
+      ],
+      "type": "object"
+    },
+    "compound_flags": {
+      "additionalProperties": false,
+      "properties": {
+        "cell_type_x_tissue": {
+          "type": "boolean"
+        },
+        "dose_response": {
+          "type": "boolean"
+        },
+        "dual_disease": {
+          "type": "boolean"
+        },
+        "longitudinal": {
+          "type": "boolean"
+        },
+        "multi_omics": {
+          "type": "boolean"
+        },
+        "multi_organism": {
+          "type": "boolean"
+        },
+        "paired_multi_tissue": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "paired_multi_tissue",
+        "cell_type_x_tissue",
+        "multi_organism",
+        "multi_omics",
+        "dual_disease",
+        "longitudinal",
+        "dose_response"
+      ],
+      "type": "object"
+    },
+    "diseases": {
+      "items": {
+        "maxLength": 120,
+        "minLength": 1,
+        "pattern": "^(?!UBERON:|CL:|MONDO:|EFO:|NCBITaxon:).+$",
+        "type": "string"
+      },
+      "maxItems": 8,
+      "type": "array"
+    },
+    "notes": {
+      "maxLength": 300,
+      "type": "string"
+    },
+    "organism_taxids": {
+      "items": {
+        "maximum": 9999999,
+        "minimum": 1,
+        "type": "integer"
+      },
+      "maxItems": 4,
+      "type": "array"
+    },
+    "subject_id_hint": {
+      "additionalProperties": false,
+      "properties": {
+        "applies": {
+          "type": "boolean"
+        },
+        "example": {
+          "maxLength": 200,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pattern": {
+          "maxLength": 200,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "applies",
+        "pattern",
+        "example"
+      ],
+      "type": "object"
+    },
+    "tissues": {
+      "items": {
+        "maxLength": 80,
+        "minLength": 1,
+        "pattern": "^(?!UBERON:|CL:|MONDO:|EFO:|NCBITaxon:).+$",
+        "type": "string"
+      },
+      "maxItems": 8,
+      "type": "array"
+    }
+  },
+  "required": [
+    "tissues",
+    "cell_types",
+    "organism_taxids",
+    "diseases",
+    "cohort_design",
+    "subject_id_hint",
+    "compound_flags",
+    "notes"
+  ],
+  "title": "Sol4ReExtractionResult",
+  "type": "object"
+}

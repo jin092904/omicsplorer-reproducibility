@@ -1,0 +1,29 @@
+{
+  "artifacts": {
+    "sol4-options.json": {
+      "sha256": "5889ac9f155a68da2c0c5a63d7c84417cc52ef901be138ed60b221ae264b23f2"
+    },
+    "sol4-prompt.txt": {
+      "sha256": "8e83cc78a6418a6e2ab38137d6e52ca12b6ce919c6130330882b9299c04e0943"
+    },
+    "sol4-runtime.json": {
+      "sha256": "4600e117ad22cb8272aa89924af9480f0c698a00f40b6fc0a5eacc6ea34d5a05"
+    },
+    "sol4-schema.json": {
+      "sha256": "d4a97ca62f2b79a3aa8e6c9294c20c0e8d52e73d02e66eba56166cfc2844a023"
+    }
+  },
+  "frozen_at_utc": "2026-08-28T10:16:53.133624+00:00",
+  "interpretation": "This contract fixes the input/output mechanics for a write-disabled feasibility pilot. It is not metadata-accuracy or effectiveness evidence.",
+  "product_git_commit": "345abf725a8ac9265fb6f32e0b696f0c77eeed79",
+  "product_sources": {
+    "apps/workers/scripts/backfill_tissue_extraction.py": {
+      "sha256": "be21a74740b573711b36731be70a1df8423edd9460772f990f7fb8c792ebaa85"
+    },
+    "apps/workers/scripts/sol4_prompt.py": {
+      "sha256": "0db41f70127adc18838d7b91485e9b96f043d6c5af2053bbebb8aa1d3fbf8132"
+    }
+  },
+  "schema_version": "omicsplorer-sol4-frozen-contract-v1",
+  "status": "frozen_for_write_disabled_feasibility_pilot"
+}

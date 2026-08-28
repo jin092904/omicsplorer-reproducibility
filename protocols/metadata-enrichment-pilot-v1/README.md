@@ -39,6 +39,28 @@ reported sample count, and up to 30 usable sample titles. It binds the selected 
 not the prompt hash. Prompt, schema, decoding options, model weights, serving engine, and
 post-processing code must be frozen separately before any model call.
 
+The freeze command extracts the prompt and schema from a clean product checkout, captures the
+actual first-pass and validation-retry Ollama request bodies without sending a network request,
+and binds them to the installed model digest and runtime:
+
+```bash
+uv run python scripts/freeze_metadata_pilot_contract.py \
+  --product-root /path/to/clean/OmicsPlorer \
+  --ollama-url http://127.0.0.1:11437 \
+  --model-tag gemma4:31b \
+  --gpu-index 5
+```
+
+The committed `frozen-contract/` directory can describe only the runtime from which it was
+captured. Re-running the command after a model, prompt, product commit, or serving-engine
+change creates a different contract and requires a documented protocol revision.
+
+The committed contract can be checked without a database, Ollama, or product checkout:
+
+```bash
+uv run python scripts/validate_metadata_pilot_contract.py
+```
+
 ## Stop conditions before model execution
 
 Do not start the 491-record model run unless all of the following are true:

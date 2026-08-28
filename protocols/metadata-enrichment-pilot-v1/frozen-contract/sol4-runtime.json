@@ -1,0 +1,21 @@
+{
+  "checkpoint": "gemma4:31b@sha256:6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7",
+  "family": "gemma4",
+  "format": "gguf",
+  "gpu": {
+    "driver_version": "550.163.01",
+    "memory_total_mib": 81920,
+    "name": "NVIDIA A100 80GB PCIe",
+    "physical_index": 5
+  },
+  "limitations": "A model tag alone is mutable; eligibility is bound to the full installed-model digest. Hardware describes this pilot host and does not imply portability or identical timing on another host.",
+  "model_size_bytes": 19868981791,
+  "model_tag": "gemma4:31b",
+  "ollama_version": "0.23.3",
+  "parameter_size": "31.3B",
+  "product_git_commit": "345abf725a8ac9265fb6f32e0b696f0c77eeed79",
+  "quantization": "Q4_K_M",
+  "schema_version": "omicsplorer-sol4-runtime-v1",
+  "serving_engine": "Ollama 0.23.3",
+  "weight_digest_sha256": "6316f0629137b426c9d9b853ffc4c8209589f30ee39aebede6285096c0ff47e7"
+}
