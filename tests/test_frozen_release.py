@@ -80,11 +80,12 @@ def _make_config(root: Path) -> Path:
     _write_json(
         lineage_manifest,
         {
-            "schema_version": "omicsplorer-structuring-lineages-v1",
+            "schema_version": "omicsplorer-structuring-lineages-v2",
             "mixed_history_note": "one local-model lineage in this fixture",
             "lineages": [
                 {
                     "lineage_id": "local-v1",
+                    "parent_lineage_ids": [],
                     "extractor_kind": "local_model",
                     "checkpoint": "example/metadata-extractor",
                     "revision": "7" * 40,
@@ -469,7 +470,85 @@ def test_config_rejects_unmapped_row_extraction_lineage(tmp_path: Path) -> None:
     raw = json.loads(config_path.read_text(encoding="utf-8"))
     raw["corpus"]["accession_manifest_sha256"] = _sha(accessions_path)
     _write_json(config_path, raw)
-    with pytest.raises(FrozenConfigError, match="extraction_lineage_id set differs"):
+    with pytest.raises(FrozenConfigError, match="lineage not declared"):
+        load_frozen_config(config_path)
+
+
+def _non_model_lineage(lineage_id: str, parents: list[str] | None = None) -> dict[str, Any]:
+    return {
+        "lineage_id": lineage_id,
+        "parent_lineage_ids": parents or [],
+        "extractor_kind": "non_model",
+        "checkpoint": None,
+        "revision": None,
+        "weight_digest_sha256": None,
+        "quantization": None,
+        "serving_engine": None,
+        "prompt_path": None,
+        "prompt_sha256": None,
+        "schema_path": None,
+        "schema_sha256": None,
+        "options_path": None,
+        "options_sha256": None,
+        "deterministic_postprocessing_revision": "6" * 40,
+        "limitations": "synthetic deterministic parent lineage",
+    }
+
+
+def test_config_accepts_reachable_parent_lineage(tmp_path: Path) -> None:
+    config_path = _make_config(tmp_path)
+    lineages_path = tmp_path / "structuring-lineages.json"
+    lineages = json.loads(lineages_path.read_text(encoding="utf-8"))
+    lineages["lineages"][0]["parent_lineage_ids"] = ["source-v1"]
+    lineages["lineages"].append(_non_model_lineage("source-v1"))
+    _write_json(lineages_path, lineages)
+    raw = json.loads(config_path.read_text(encoding="utf-8"))
+    raw["models"]["metadata_structuring"]["lineage_manifest_sha256"] = _sha(lineages_path)
+    _write_json(config_path, raw)
+
+    assert load_frozen_config(config_path).release_id == "gpb-appnote-test-v1"
+
+
+def test_config_rejects_undeclared_parent_lineage(tmp_path: Path) -> None:
+    config_path = _make_config(tmp_path)
+    lineages_path = tmp_path / "structuring-lineages.json"
+    lineages = json.loads(lineages_path.read_text(encoding="utf-8"))
+    lineages["lineages"][0]["parent_lineage_ids"] = ["missing-parent"]
+    _write_json(lineages_path, lineages)
+    raw = json.loads(config_path.read_text(encoding="utf-8"))
+    raw["models"]["metadata_structuring"]["lineage_manifest_sha256"] = _sha(lineages_path)
+    _write_json(config_path, raw)
+
+    with pytest.raises(FrozenConfigError, match="undeclared parent"):
+        load_frozen_config(config_path)
+
+
+def test_config_rejects_lineage_cycle(tmp_path: Path) -> None:
+    config_path = _make_config(tmp_path)
+    lineages_path = tmp_path / "structuring-lineages.json"
+    lineages = json.loads(lineages_path.read_text(encoding="utf-8"))
+    lineages["lineages"][0]["parent_lineage_ids"] = ["source-v1"]
+    lineages["lineages"].append(_non_model_lineage("source-v1", ["local-v1"]))
+    _write_json(lineages_path, lineages)
+    raw = json.loads(config_path.read_text(encoding="utf-8"))
+    raw["models"]["metadata_structuring"]["lineage_manifest_sha256"] = _sha(lineages_path)
+    _write_json(config_path, raw)
+
+    with pytest.raises(FrozenConfigError, match="lineage graph contains a cycle"):
+        load_frozen_config(config_path)
+
+
+def test_config_rejects_unreachable_lineage_declaration(tmp_path: Path) -> None:
+    config_path = _make_config(tmp_path)
+    lineages_path = tmp_path / "structuring-lineages.json"
+    lineages = json.loads(lineages_path.read_text(encoding="utf-8"))
+    lineages["lineages"].append(_non_model_lineage("unused-v1"))
+    _write_json(lineages_path, lineages)
+    raw = json.loads(config_path.read_text(encoding="utf-8"))
+    raw["models"]["metadata_structuring"]["lineage_manifest_sha256"] = _sha(lineages_path)
+    _write_json(config_path, raw)
+
+    with pytest.raises(FrozenConfigError, match="not reachable"):
         load_frozen_config(config_path)
 
 

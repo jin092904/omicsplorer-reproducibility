@@ -31,12 +31,16 @@ NO-GO conditions.
    newline. Counts and hashes must agree with the accession TSV, and the
    mismatch count must be zero.
 4. For every corpus row, record `extraction_version`, `build_stage`, and
-   `extraction_lineage_id`. The lineage manifest must identify each local
-   metadata extractor's checkpoint, revision, weight digest, quantization,
-   serving engine, exact prompt, constrained schema, decoding/parser options,
-   and deterministic post-processing revision. Stub or non-model lineages use
-   explicit null model fields. Mixed historical lineages and their limitations
-   must remain visible rather than being described as one uniform extraction.
+   `extraction_lineage_id`. A row points to its final lineage; when that output
+   preserves or merges fields from an earlier stage, `parent_lineage_ids` must
+   connect the final lineage to every direct predecessor. The complete,
+   acyclic graph must identify each local metadata extractor's checkpoint,
+   revision, weight digest, quantization, serving engine, exact prompt,
+   constrained schema, decoding/parser options, and deterministic
+   post-processing revision. Stub or non-model lineages use explicit null model
+   fields. Undeclared parents, cycles, unreachable declarations, mixed
+   historical lineages, and their limitations must remain visible rather than
+   being collapsed into one uniform extraction.
 5. Record the effective deployed image digest and immutable retrieval-model weight
    digests. Document and query embeddings must share the same checkpoint,
    revision, vector space, quantization, pooling, and truncation. Model-defined
