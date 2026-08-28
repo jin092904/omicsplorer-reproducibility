@@ -4,6 +4,7 @@ from genofinder_eval.evidence_preflight import (
     REQUIRED_DATASET_COLUMNS,
     ComponentResult,
     assess_dataset_columns,
+    assess_dataset_values,
     build_report,
 )
 
@@ -22,6 +23,60 @@ def test_dataset_column_assessment_accepts_complete_schema() -> None:
 
     assert result.status == "ready"
     assert result.blockers == []
+
+
+def test_dataset_value_assessment_fails_on_incomplete_lineage() -> None:
+    result = assess_dataset_values(
+        {
+            "row_count": 10,
+            "invalid_identity_count": 0,
+            "missing_extraction_version_count": 0,
+            "missing_extraction_lineage_id_count": 3,
+            "missing_build_stage_count": 2,
+            "duplicate_accession_count": 0,
+        }
+    )
+
+    assert result.status == "blocked"
+    assert result.checks["row_lineage_complete"] is False
+    assert result.blockers == [
+        "rows missing extraction_lineage_id: 3",
+        "rows missing build_stage: 2",
+    ]
+    assert result.observations is not None
+    assert result.observations["row_count"] == 10
+
+
+def test_dataset_value_assessment_accepts_complete_nonempty_corpus() -> None:
+    result = assess_dataset_values(
+        {
+            "row_count": 10,
+            "invalid_identity_count": 0,
+            "missing_extraction_version_count": 0,
+            "missing_extraction_lineage_id_count": 0,
+            "missing_build_stage_count": 0,
+            "duplicate_accession_count": 0,
+        }
+    )
+
+    assert result.status == "ready"
+    assert result.blockers == []
+
+
+def test_dataset_value_assessment_rejects_empty_corpus() -> None:
+    result = assess_dataset_values(
+        {
+            "row_count": 0,
+            "invalid_identity_count": 0,
+            "missing_extraction_version_count": 0,
+            "missing_extraction_lineage_id_count": 0,
+            "missing_build_stage_count": 0,
+            "duplicate_accession_count": 0,
+        }
+    )
+
+    assert result.status == "blocked"
+    assert result.blockers == ["datasets table is empty"]
 
 
 def test_report_does_not_equate_preflight_with_evidence() -> None:

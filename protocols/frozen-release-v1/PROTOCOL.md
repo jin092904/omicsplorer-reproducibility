@@ -106,8 +106,10 @@ uv run --frozen --offline python scripts/preflight_frozen_evidence.py \
   --output evidence-preflight.json
 ```
 
-Exit status 0 means only that the configured stores and required dataset
-lineage columns are readable. The report is an operator preflight, not a
+Exit status 0 means only that the configured stores, required dataset lineage
+columns, non-empty row identities, row-level lineage values, and accession
+uniqueness are readable and complete. Only aggregate problem counts are
+reported; corpus row values are not printed. The report is an operator preflight, not a
 snapshot, corpus manifest, cross-store comparison, performance result, or
 `RELEASE GO` artifact. Do not add it to a submission archive as a substitute
 for the evidence below.
