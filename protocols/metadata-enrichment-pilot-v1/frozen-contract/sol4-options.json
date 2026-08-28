@@ -1,0 +1,43 @@
+{
+  "code_fence_stripping": true,
+  "first_pass_request": {
+    "json": {
+      "model": "gemma4:31b",
+      "options": {
+        "num_ctx": 8192,
+        "num_predict": 1024,
+        "temperature": 0.1,
+        "top_p": 0.9
+      },
+      "prompt": "__BASE_PROMPT__",
+      "stream": false,
+      "think": false
+    },
+    "timeout": 180.0,
+    "url": "http://127.0.0.1:11437/api/generate"
+  },
+  "infrastructure_max_attempts": 5,
+  "output_schema_delivery": "downstream_jsonschema_only",
+  "output_schema_omission_reason": "Ollama 0.23.3 SchemaToGrammar crash observed with the nested schema; the product validates parsed JSON downstream instead",
+  "output_schema_omitted_from_ollama_request": true,
+  "schema_version": "omicsplorer-sol4-request-options-v1",
+  "validation_error_truncation_chars": 200,
+  "validation_retry_count": 1,
+  "validation_retry_prompt_template": "{base_prompt}\n\nYOUR PREVIOUS RESPONSE FAILED VALIDATION. ERROR: {validation_error_truncated_200}. Re-emit the JSON object correctly. Output ONLY the JSON object, nothing else.",
+  "validation_retry_request": {
+    "json": {
+      "model": "gemma4:31b",
+      "options": {
+        "num_ctx": 8192,
+        "num_predict": 1024,
+        "temperature": 0.0,
+        "top_p": 0.9
+      },
+      "prompt": "__RETRY_PROMPT__",
+      "stream": false,
+      "think": false
+    },
+    "timeout": 180.0,
+    "url": "http://127.0.0.1:11437/api/generate"
+  }
+}
