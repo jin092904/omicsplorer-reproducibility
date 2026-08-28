@@ -19,3 +19,7 @@ releases/*
 # Raw responses from external services are not distributed in this repository.
 results/**/raw/
 *.restricted.*
+
+# Live-corpus pilot manifests contain source accessions and stay outside Git.
+*.private.jsonl
+private/
