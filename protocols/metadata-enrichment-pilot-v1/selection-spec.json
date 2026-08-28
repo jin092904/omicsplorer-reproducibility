@@ -1,0 +1,39 @@
+{
+  "schema_version": "omicsplorer-metadata-pilot-selection-v1",
+  "protocol_version": "metadata-enrichment-pilot-v1.0.0",
+  "purpose": "write-disabled feasibility pilot for throughput, failure modes, and input availability; not metadata-accuracy or effectiveness evidence",
+  "seed": "omicsplorer-pilot-v1",
+  "selection_algorithm": "Within each stratum, sort ascending by PostgreSQL md5(source_db || ':' || source_id || ':' || seed), then source_id; retain the first target_n records.",
+  "strata": [
+    {
+      "label": "sra_phase3",
+      "source_db": "SRA",
+      "historical_extraction_version": "v3-phase3-2026-05-28",
+      "target_n": 100
+    },
+    {
+      "label": "geo_phi4",
+      "source_db": "GEO",
+      "historical_extraction_version": "v2-phi4-onto-2026-05-06",
+      "target_n": 100
+    },
+    {
+      "label": "geo_sol4",
+      "source_db": "GEO",
+      "historical_extraction_version": "sol4-gemma4-2026-06-07",
+      "target_n": 100
+    },
+    {
+      "label": "geo_stub",
+      "source_db": "GEO",
+      "historical_extraction_version": "v0-stub-2026-05-06",
+      "target_n": 100
+    },
+    {
+      "label": "gdc_structured",
+      "source_db": "GDC",
+      "historical_extraction_version": "v2-gdc-2026-05-06",
+      "target_n": 91
+    }
+  ]
+}
