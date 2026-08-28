@@ -1,7 +1,7 @@
 {
   "artifacts": {
     "sol4-options.json": {
-      "sha256": "5889ac9f155a68da2c0c5a63d7c84417cc52ef901be138ed60b221ae264b23f2"
+      "sha256": "07ef628d1fe101795ea673c8c1c554659fff8bb3e8541d80065e33ccff86a25e"
     },
     "sol4-prompt.txt": {
       "sha256": "8e83cc78a6418a6e2ab38137d6e52ca12b6ce919c6130330882b9299c04e0943"
@@ -13,7 +13,7 @@
       "sha256": "d4a97ca62f2b79a3aa8e6c9294c20c0e8d52e73d02e66eba56166cfc2844a023"
     }
   },
-  "frozen_at_utc": "2026-08-28T10:16:53.133624+00:00",
+  "frozen_at_utc": "2026-08-28T14:12:04.262765+00:00",
   "interpretation": "This contract fixes the input/output mechanics for a write-disabled feasibility pilot. It is not metadata-accuracy or effectiveness evidence.",
   "product_git_commit": "345abf725a8ac9265fb6f32e0b696f0c77eeed79",
   "product_sources": {

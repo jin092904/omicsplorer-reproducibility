@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import importlib.metadata
 import importlib.util
 import inspect
 import json
@@ -15,6 +16,8 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, cast
 from urllib.request import urlopen
+
+from jsonschema import Draft202012Validator
 
 
 class MetadataContractError(ValueError):
@@ -159,6 +162,11 @@ def capture_options(
             "the product validates parsed JSON downstream instead"
         ),
         "code_fence_stripping": True,
+        "downstream_validator": {
+            "package": "jsonschema",
+            "version": importlib.metadata.version("jsonschema"),
+            "schema_draft": "https://json-schema.org/draft/2020-12/schema",
+        },
     }
 
 
@@ -320,6 +328,8 @@ def validate_contract(output_dir: Path) -> dict[str, Any]:
 
     runtime = json.loads((output_dir / "sol4-runtime.json").read_text(encoding="utf-8"))
     options = json.loads((output_dir / "sol4-options.json").read_text(encoding="utf-8"))
+    schema = json.loads((output_dir / "sol4-schema.json").read_text(encoding="utf-8"))
+    Draft202012Validator.check_schema(schema)
     if runtime.get("product_git_commit") != manifest.get("product_git_commit"):
         raise MetadataContractError("runtime and manifest product commits differ")
     if options.get("first_pass_request", {}).get("json", {}).get("model") != runtime.get(

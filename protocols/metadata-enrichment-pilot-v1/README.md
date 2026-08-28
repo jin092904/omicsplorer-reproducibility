@@ -2,6 +2,13 @@
 
 Status: **input-selection implementation; no model result is included**
 
+Implementation note (2026-08-28): initial private, pre-eligible five-record smoke diagnostics exposed a
+missing `jsonschema` dependency in the evaluation environment. Ollama returned HTTP 200 and
+JSON objects, but downstream validation could not import its validator. That diagnostic run
+set is excluded from pilot evidence. The evaluator now pins the same `jsonschema 4.26.0` version
+observed in the product worker environment, and the frozen options record the validator
+version explicitly.
+
 This protocol deterministically selects 491 existing OmicsPlorer records across five
 historical ingestion strata. The strata are workload/input-coverage labels only. They do not
 establish the current row lineage, extraction accuracy, or superiority of one extractor.
@@ -71,3 +78,26 @@ Do not start the 491-record model run unless all of the following are true:
    SHA-256-bound manifest entries;
 4. the runner has no commit flag and verifies a read-only database transaction;
 5. a small smoke batch completes without a database or search-index count change.
+
+## Write-disabled smoke execution
+
+The smoke runner has no commit option. It selects the first record in each prespecified
+stratum, verifies every source-input hash, and processes each record inside a PostgreSQL
+read-only transaction. Sol4 inference and OLS4 exact-match normalization run, but the safe
+merge is invoked only with `shadow=True`. PostgreSQL selected-row state, Qdrant point count,
+and OpenSearch document count must be identical before and after the run.
+
+```bash
+DATABASE_URL='postgresql://...' uv run python scripts/run_metadata_pilot_smoke.py \
+  --selection-manifest /restricted/path/selection.private.jsonl \
+  --output /restricted/path/smoke-run.private.json \
+  --product-root /path/to/clean/OmicsPlorer
+```
+
+Run the same command once with `--preflight-only` and a separate output path before allowing
+the five model calls. Preflight validates all five input hashes and store observations without
+contacting `/api/generate`.
+
+This five-record smoke can establish only that the frozen pipeline executes under the stated
+guards. Its success rate and timing are diagnostic and must not be reported as extraction
+accuracy, general production throughput, or a service-level objective.
