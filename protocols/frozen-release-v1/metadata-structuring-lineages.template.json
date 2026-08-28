@@ -1,9 +1,10 @@
 {
-  "schema_version": "omicsplorer-structuring-lineages-v1",
+  "schema_version": "omicsplorer-structuring-lineages-v2",
   "mixed_history_note": "REQUIRED_DESCRIPTION_OF_LINEAGE_DISTRIBUTION_AND_LIMITATIONS",
   "lineages": [
     {
       "lineage_id": "REQUIRED_STABLE_LINEAGE_ID",
+      "parent_lineage_ids": [],
       "extractor_kind": "local_model",
       "checkpoint": "REQUIRED_IMMUTABLE_EXTRACTOR_CHECKPOINT",
       "revision": "REQUIRED_EXTRACTOR_REVISION",

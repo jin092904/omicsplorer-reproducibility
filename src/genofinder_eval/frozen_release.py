@@ -274,6 +274,7 @@ class StoresManifest(_StrictModel):
 
 class StructuringLineage(_StrictModel):
     lineage_id: str
+    parent_lineage_ids: list[str]
     extractor_kind: Literal["local_model", "non_model"]
     checkpoint: str | None
     revision: str | None
@@ -291,7 +292,7 @@ class StructuringLineage(_StrictModel):
 
 
 class StructuringLineageManifest(_StrictModel):
-    schema_version: Literal["omicsplorer-structuring-lineages-v1"]
+    schema_version: Literal["omicsplorer-structuring-lineages-v2"]
     mixed_history_note: str
     lineages: list[StructuringLineage]
 
@@ -528,6 +529,45 @@ def _read_structuring_lineages(
     lineage_ids = [lineage.lineage_id for lineage in manifest.lineages]
     if len(lineage_ids) != len(set(lineage_ids)):
         errors.append("metadata-structuring lineage IDs are duplicated")
+    declared_lineage_ids = set(lineage_ids)
+    parents_by_lineage = {
+        lineage.lineage_id: lineage.parent_lineage_ids for lineage in manifest.lineages
+    }
+    for lineage in manifest.lineages:
+        parents = lineage.parent_lineage_ids
+        if len(parents) != len(set(parents)):
+            errors.append(
+                f"metadata-structuring lineage {lineage.lineage_id!r} has duplicate parents"
+            )
+        for parent_id in parents:
+            if parent_id == lineage.lineage_id:
+                errors.append(
+                    f"metadata-structuring lineage {lineage.lineage_id!r} cannot parent itself"
+                )
+            elif parent_id not in declared_lineage_ids:
+                errors.append(
+                    f"metadata-structuring lineage {lineage.lineage_id!r} references "
+                    f"undeclared parent {parent_id!r}"
+                )
+
+    visiting: set[str] = set()
+    visited: set[str] = set()
+
+    def visit(lineage_id: str) -> None:
+        if lineage_id in visited:
+            return
+        if lineage_id in visiting:
+            errors.append("metadata-structuring lineage graph contains a cycle")
+            return
+        visiting.add(lineage_id)
+        for parent_id in parents_by_lineage.get(lineage_id, []):
+            if parent_id in declared_lineage_ids:
+                visit(parent_id)
+        visiting.remove(lineage_id)
+        visited.add(lineage_id)
+
+    for lineage_id in lineage_ids:
+        visit(lineage_id)
 
     model_fields = (
         "checkpoint",
@@ -730,10 +770,31 @@ def _cross_validate_corpus_evidence(
         return errors
     declared_lineages = {lineage.lineage_id for lineage in lineages.lineages}
     observed_lineages = set(accessions["lineage_ids"])
-    if observed_lineages != declared_lineages:
+    undeclared_observed = observed_lineages - declared_lineages
+    if undeclared_observed:
         errors.append(
-            "accession extraction_lineage_id set differs from structuring lineage manifest"
+            "accession extraction_lineage_id includes a lineage not declared in the "
+            "structuring lineage manifest"
         )
+    else:
+        parents_by_lineage = {
+            lineage.lineage_id: lineage.parent_lineage_ids for lineage in lineages.lineages
+        }
+        reachable = set(observed_lineages)
+        pending = list(observed_lineages)
+        while pending:
+            lineage_id = pending.pop()
+            for parent_id in parents_by_lineage.get(lineage_id, []):
+                if parent_id not in declared_lineages:
+                    continue
+                if parent_id not in reachable:
+                    reachable.add(parent_id)
+                    pending.append(parent_id)
+        if reachable != declared_lineages:
+            errors.append(
+                "structuring lineage manifest contains a lineage that is not reachable "
+                "from any accession row"
+            )
 
     expected_hash = str(accessions["dataset_id_set_sha256"])
     expected_rows = config.corpus.row_count
