@@ -101,3 +101,34 @@ contacting `/api/generate`.
 This five-record smoke can establish only that the frozen pipeline executes under the stated
 guards. Its success rate and timing are diagnostic and must not be reported as extraction
 accuracy, general production throughput, or a service-level objective.
+
+## Resumable batch execution
+
+Longer rehearsals and the 491-record feasibility run use a separate resumable runner. In plain
+terms, it saves after every record. Each saved line includes the previous line's SHA-256, so a
+missing or edited intermediate result breaks the chain and blocks resume. `SIGINT`/`SIGTERM`
+requests stop only after the current record has been saved. Five consecutive non-success
+outcomes stop the run by default instead of spending hours on a systemic failure.
+
+The runner must be launched from a clean, committed evaluator checkout. A 25-record rehearsal
+is created with `--per-stratum 5`; the final selection uses `--all-records`. The choice, model
+contract, product/evaluator commits, and source manifest hashes become immutable when the run
+directory is created.
+
+```bash
+DATABASE_URL='postgresql://...' uv run python scripts/run_metadata_pilot_batch.py \
+  --selection-manifest /restricted/path/selection.private.jsonl \
+  --run-dir /restricted/path/rehearsal-25 \
+  --product-root /path/to/clean/OmicsPlorer \
+  --per-stratum 5
+
+# Continue the same run after a safe pause:
+DATABASE_URL='postgresql://...' uv run python scripts/run_metadata_pilot_batch.py \
+  --selection-manifest /restricted/path/selection.private.jsonl \
+  --run-dir /restricted/path/rehearsal-25 \
+  --product-root /path/to/clean/OmicsPlorer \
+  --per-stratum 5 --resume
+```
+
+The run directory and its files are private operational evidence (`0700` directory, `0600`
+files) and are not committed to this repository.
