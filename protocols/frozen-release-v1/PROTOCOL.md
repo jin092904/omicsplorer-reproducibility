@@ -254,6 +254,64 @@ zero-mismatch audit. Likewise, reindexing missing records creates new index and
 embedding provenance that must be frozen and reported. Neither repair option
 may be relabelled as the untouched source snapshot.
 
+### Common-store derivative procedure
+
+When a pre-evaluation audit finds rows present only in PostgreSQL, a common-store
+derivative may be used only if Qdrant and OpenSearch are already identical in
+both internal dataset IDs and accession membership. The fixed inclusion rule is:
+retain a dataset only when that identity and membership were present in all
+three frozen stores in the pre-evaluation audit. This is a store-consistency
+rule, not a relevance, metadata-quality, or retrieval-outcome filter.
+
+Never apply the rule to the restored source database. Clone that database under
+a name ending in `_intersection`, assign a distinct database-local snapshot
+marker, and keep ingestion, migration, worker, and application processes
+stopped. Preserve the source database and all three original audit inputs.
+
+Run planning with a database administrator because it must count all foreign-key
+references, including rows protected by row-level security. Planning is a
+repeatable-read, read-only transaction. It checks that the private PostgreSQL-only
+ID lists are identical for Qdrant and OpenSearch, every reverse difference is
+empty, membership mismatches are empty, and the calculated retained PostgreSQL
+hashes equal both search stores. Version 1 refuses the transformation if any
+excluded row is referenced by another table, even when the foreign key would
+cascade or set the reference to null.
+
+```bash
+DATABASE_URL='<isolated-derivative-admin-url>' \
+uv run --frozen --offline python scripts/prepare_intersection_derivative.py plan \
+  --snapshot-id '<distinct-derivative-snapshot-id>' \
+  --audit /private/evidence/cross-store-audit.json \
+  --private-mismatches /private/evidence/cross-store-mismatches.private.json \
+  --output /private/evidence/intersection-plan.json
+```
+
+Review and separately record the printed plan SHA-256. For application, use a
+temporary role with `SELECT, DELETE` on `datasets` only. The apply transaction
+rechecks the derivative name and marker, complete before-state hashes, private
+file hash, exclusion count and exclusion-ID-set hash. It deletes only those
+private IDs and rolls back unless the resulting count, internal-ID hash, and
+accession-membership hash exactly equal the target recorded from both search
+stores.
+
+```bash
+DATABASE_URL='<isolated-derivative-temporary-role-url>' \
+uv run --frozen --offline python scripts/prepare_intersection_derivative.py apply \
+  --plan /private/evidence/intersection-plan.json \
+  --private-mismatches /private/evidence/cross-store-mismatches.private.json \
+  --expected-plan-sha256 '<printed-plan-sha256>' \
+  --acknowledgement I_CONFIRM_THIS_IS_A_DERIVATIVE_INTERSECTION_DATABASE \
+  --output /private/evidence/intersection-report.json
+```
+
+Immediately revoke the temporary role's delete permission and disable login.
+Then rerun the full read-only cross-store audit against the derivative database.
+Only a zero-mismatch result is eligible for the derivative corpus manifest.
+Keep source-snapshot and derivative identifiers distinct in all reports. A
+successful transformation proves only declared cross-store identity consistency;
+it does not show that the excluded rows were scientifically inferior, that the
+metadata are accurate, or that retrieval is fast or effective.
+
 ## Prespecified run
 
 - Query set: exactly 49 `hard_queries`. The balanced set remains an LLM-assisted
