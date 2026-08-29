@@ -25,6 +25,9 @@ corpus, model, configuration, request-trace, and row-level lineage checks. Accor
   provenance; a fail-closed plan/apply helper for an isolated restored
   PostgreSQL snapshot is implemented and tested, but no production row has
   been annotated and no qualifying snapshot has yet been created;
+- a read-only cross-store audit can stream PostgreSQL rows, Qdrant points, and
+  OpenSearch documents to calculate canonical ID and accession-membership
+  hashes while keeping exact mismatch identifiers in a separate private file;
 - the hard-query tables are historical internal regression aggregates;
 - the browser run is a descriptive observation from one ingress, date, and measurement setup;
 - none of these files establishes superiority over another system, a service-level objective,
@@ -95,6 +98,11 @@ read-only; applying a frozen plan requires a separately supplied plan hash,
 an exact isolation acknowledgement, a matching database-local snapshot marker,
 and a temporary role limited to the two lineage columns. This helper is not a
 production migration and does not establish metadata accuracy.
+
+After restoring all three stores, use the protocol's `Cross-store snapshot
+audit` procedure before creating a corpus manifest. A nonzero mismatch count
+is a frozen-corpus blocker; the tool does not silently delete or reindex data.
+Exit status 0 establishes identity agreement only and is not `RELEASE GO`.
 
 To verify or refresh the checksums after an intentional artifact update:
 

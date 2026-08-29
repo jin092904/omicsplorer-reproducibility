@@ -208,6 +208,52 @@ cross-store checks, the OCI-hosted search service, and evidence collection with
 read-only store roles. A successful annotation run proves only that the stated
 labels were applied consistently to that isolated snapshot.
 
+### Cross-store snapshot audit
+
+After all three stores have been restored, run the read-only cross-store audit
+before exporting a corpus manifest or starting the application. Use the
+read-only PostgreSQL role and the exact Qdrant and OpenSearch versions recorded
+with the source snapshots. The tool accepts only loopback HTTP(S) endpoints,
+requires the database-local snapshot marker, and does not write corpus data.
+
+```bash
+DATABASE_URL='<isolated-snapshot-read-only-url>' \
+uv run --frozen --offline python scripts/audit_cross_store_snapshot.py \
+  --snapshot-id '<database-local-snapshot-id>' \
+  --qdrant-url http://127.0.0.1:<isolated-qdrant-port> \
+  --qdrant-collection datasets_v2 \
+  --qdrant-version '<source-qdrant-version>' \
+  --opensearch-url http://127.0.0.1:<isolated-opensearch-port> \
+  --opensearch-index datasets_v2 \
+  --opensearch-version '<source-opensearch-version>' \
+  --acknowledgement I_CONFIRM_THESE_ARE_ISOLATED_FROZEN_STORES \
+  --output /private/evidence/cross-store-audit.json \
+  --private-mismatches /private/evidence/cross-store-mismatches.private.json
+```
+
+For each store, the audit streams every record and checks its native document
+or point ID against the payload `dataset_id`. It requires non-empty
+`source_db`, `source_id`, and `dataset_id`, and reports duplicate IDs,
+conflicting memberships, exact scanned counts, canonical sorted dataset-ID-set
+SHA-256, and canonical sorted `(source_db, source_id, dataset_id)` membership
+SHA-256. It also records the database marker and version, Qdrant version and
+vector-configuration hash, and OpenSearch version, health, and mapping hash.
+
+The aggregate report contains counts and hashes, not mismatch identifiers. The
+separate private file contains the exact pairwise differences and must remain
+private unless each identifier is reviewed for release. Exit status 0 means
+only that all scanned records are structurally complete and the three ID and
+membership sets are equal. A nonzero mismatch count leaves the frozen corpus
+ineligible and is not a software failure to hide by rerunning.
+
+Do not automatically delete database-only rows, insert missing search records,
+or choose an intersection after seeing retrieval outcomes. Any derivative
+common-store corpus requires a separately stated, non-outcome-based inclusion
+rule, a hashed transformation plan, before/after identities, and another
+zero-mismatch audit. Likewise, reindexing missing records creates new index and
+embedding provenance that must be frozen and reported. Neither repair option
+may be relabelled as the untouched source snapshot.
+
 ## Prespecified run
 
 - Query set: exactly 49 `hard_queries`. The balanced set remains an LLM-assisted
