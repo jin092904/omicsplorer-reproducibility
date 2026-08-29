@@ -20,6 +20,10 @@ corpus, model, configuration, request-trace, and row-level lineage checks. Accor
 - the frozen retrieval protocol requires an archived OCI application-image
   manifest digest and isolated restored store snapshots, but no qualifying
   containerized retrieval run has been collected;
+- the validator can preserve explicitly declared `historical_unresolved`
+  lineage groups for an archived retrieval snapshot without inventing model
+  provenance; no production row has been annotated and no qualifying snapshot
+  has yet been created;
 - the hard-query tables are historical internal regression aggregates;
 - the browser run is a descriptive observation from one ingress, date, and measurement setup;
 - none of these files establishes superiority over another system, a service-level objective,

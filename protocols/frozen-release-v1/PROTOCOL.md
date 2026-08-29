@@ -106,6 +106,43 @@ System-service observations collected under earlier dated protocols retain
 their original runtime descriptions. They must not be relabelled as
 containerized evidence after the fact.
 
+## Historical unresolved lineage policy
+
+The production corpus predates complete row-level lineage capture. A retained
+historical row must not be assigned an exact model, weight, prompt, schema,
+option, parent graph, or post-processing revision by inference from an
+`extraction_version` label. Full reprocessing under a frozen lineage remains
+the stronger option and is required before claiming reproducible corpus
+construction or field-level extraction accuracy.
+
+For the Application Note's frozen retrieval snapshot only, an isolated restored
+database copy may explicitly mark unreconstructable history without changing
+the production database. Such a lineage declaration must satisfy all of the
+following rules:
+
+- `extractor_kind` is exactly `historical_unresolved`;
+- every model, weight, prompt, schema, option, serving-engine, parent-lineage,
+  and deterministic-post-processing field is explicit `null` or empty as
+  required by the schema;
+- every corresponding accession row uses `build_stage=historical_unresolved`;
+- one unresolved lineage ID maps to exactly one retained
+  `extraction_version`; different historical version labels cannot be
+  collapsed into a single unresolved lineage;
+- the lineage `limitations` and manifest `mixed_history_note` state that the
+  snapshot retains historical output whose original runtime cannot be
+  reconstructed;
+- the snapshot-annotation transformation is logged and hashed, and row counts,
+  accession membership, canonical dataset-ID hashes, and search-store
+  membership are checked before and after annotation.
+
+This marker is a machine-checkable limitation, not reconstructed provenance.
+It permits reproduction of retrieval against the exact archived metadata
+snapshot but does not establish how that metadata was originally generated,
+whether its fields are accurate, or whether rerunning a historical extractor
+would reproduce it. The manuscript must report those boundaries. A resolved
+local-model or non-model lineage cannot use the
+`historical_unresolved` build stage.
+
 ## Prespecified run
 
 - Query set: exactly 49 `hard_queries`. The balanced set remains an LLM-assisted
