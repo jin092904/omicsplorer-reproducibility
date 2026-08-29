@@ -70,6 +70,42 @@ NO-GO conditions.
    completed canonical server configuration, so the internal regression rerun
    remains NO-GO until those per-request traces pass the offline validator.
 
+## Containerized execution boundary
+
+The frozen corpus-and-retrieval run must use an isolated OCI application image
+built from the final tagged product commit. A mutable image tag, a successful
+build, or a synthetic Docker demo is not runtime identity evidence. Record the
+following before collection:
+
+- the published and archived OCI manifest digest used to start the application;
+- the image-config digest, target platform, builder name and version, product
+  commit, Dockerfile SHA-256, dependency-lock SHA-256, and pinned base-image
+  digests;
+- the image's declared non-root user and a successful smoke check using that
+  declared user without a runtime user override;
+- the same OCI manifest digest in `runtime.container_image_digest`, the
+  canonical `effective-server-config.json`, and every eligible response trace.
+
+Use the OCI manifest digest, not a mutable tag or an engine-local abbreviated
+image ID, as `runtime.container_image_digest`. Preserve the exact image in a
+public immutable registry or archive before submission. A local-only image is
+preliminary operator evidence and cannot satisfy this requirement.
+
+Restore the frozen PostgreSQL, Qdrant, and OpenSearch snapshots into separate
+evaluation stores. Do not bind-mount live production data directories into the
+evaluation stack. Do not start the reference Compose file's migration,
+worker, beat, ingestion, maintenance-commit, or reindex paths during evidence
+collection. Use a database role that cannot write, publish service ports only
+on loopback or an isolated evaluation network, and verify the restored
+cross-store counts and canonical dataset-ID hashes before sending the unscored
+warm-up request. Containerization does not replace row-level extraction
+lineage, model-weight digests, store snapshots, eligible effective-path traces,
+or independent scientific evaluation.
+
+System-service observations collected under earlier dated protocols retain
+their original runtime descriptions. They must not be relabelled as
+containerized evidence after the fact.
+
 ## Prespecified run
 
 - Query set: exactly 49 `hard_queries`. The balanced set remains an LLM-assisted
