@@ -143,6 +143,71 @@ would reproduce it. The manuscript must report those boundaries. A resolved
 local-model or non-model lineage cannot use the
 `historical_unresolved` build stage.
 
+### Isolated snapshot annotation procedure
+
+The repository includes a two-step helper for this limited transformation. It
+must never be pointed at the production database. First restore a frozen
+PostgreSQL backup under a new database name matching
+`omicsplorer_frozen_<lowercase_name>`. Keep all application, migration,
+ingestion, worker, and maintenance processes stopped. Give the restored
+database a distinct local marker and reconnect so the setting is visible:
+
+```sql
+ALTER DATABASE omicsplorer_frozen_gpb_v1
+  SET omicsplorer.evidence_snapshot_id = 'gpb-snapshot-v1';
+```
+
+Use two database roles. The planning and final-validation role is read-only.
+The temporary annotation role receives `SELECT` on `datasets` and column-level
+`UPDATE` only on `extraction_lineage_id` and `build_stage`; revoke that update
+permission immediately after annotation. Do not grant it schema-changing,
+insertion, deletion, migration, Qdrant, or OpenSearch permissions.
+
+Create the plan first. This command runs in a repeatable-read, read-only
+transaction. It refuses a database whose name or local marker does not match,
+an empty or partially annotated table, missing extraction-version labels,
+duplicate `(source_db, source_id)` accessions, or changing row identities.
+
+```bash
+DATABASE_URL='<isolated-snapshot-read-only-url>' \
+uv run --frozen --offline python \
+  scripts/prepare_historical_lineage_snapshot.py plan \
+  --snapshot-id gpb-snapshot-v1 \
+  --output /private/evidence/historical-lineage-plan.json
+```
+
+Review the plan's database name, total and per-version row counts, mutation
+scope, and identity hashes. Preserve the printed SHA-256 outside the plan file.
+Only then run the apply step with the temporary annotation role, the separately
+copied plan hash, and the exact acknowledgement shown below:
+
+```bash
+DATABASE_URL='<isolated-snapshot-annotation-url>' \
+uv run --frozen --offline python \
+  scripts/prepare_historical_lineage_snapshot.py apply \
+  --plan /private/evidence/historical-lineage-plan.json \
+  --expected-plan-sha256 '<printed-plan-sha256>' \
+  --acknowledgement I_CONFIRM_THIS_IS_AN_ISOLATED_FROZEN_SNAPSHOT \
+  --output /private/evidence/historical-lineage-annotation-report.json
+```
+
+The apply step uses one serializable transaction. It rechecks the database
+identity, marker, plan hash, row and version counts, accession membership, and
+canonical dataset-ID hash before writing. It changes only the two declared
+columns, assigns one deterministic unresolved lineage per retained
+`extraction_version`, and then verifies the same identities and exact
+assignments. A mismatch raises an error and rolls back the transaction. The
+tool does not contact or modify Qdrant or OpenSearch; the later frozen-release
+validator must still prove cross-store membership equality.
+
+The plan and annotation report are operator evidence, not by themselves a
+publishable release. They may expose an internal database name or path and
+must be reviewed before producing a sanitized, hash-bound public derivative.
+After revoking the temporary write permission, run all corpus exports,
+cross-store checks, the OCI-hosted search service, and evidence collection with
+read-only store roles. A successful annotation run proves only that the stated
+labels were applied consistently to that isolated snapshot.
+
 ## Prespecified run
 
 - Query set: exactly 49 `hard_queries`. The balanced set remains an LLM-assisted
