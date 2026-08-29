@@ -1,0 +1,33 @@
+{
+  "execution": {
+    "parallelism": 1,
+    "process_elapsed_seconds": 6278.2,
+    "selection_mode": "all_records",
+    "store_observations_equal": true,
+    "target_n": 491,
+    "write_guard_passed": true
+  },
+  "interpretation": "write-disabled execution feasibility under the frozen runtime; not metadata accuracy, search latency, production throughput, or an SLA",
+  "privacy": "identifier-free observations sorted independently of private execution order; source accessions, input hashes, predictions, and model response text excluded",
+  "protocol_version": "metadata-enrichment-pilot-v1.0.0",
+  "provenance": {
+    "contract_manifest_sha256": "6586b5b69b6a51cb47af6345a4434ed023ebb002b4945c2ede7292c100deddad",
+    "evaluator_git_commit": "7e2ca6f4f59e7bd4e2e5f6f19a5515cc900d53f3",
+    "private_results_sha256": "22b6f9ca288039a6996890cf51fc7748e07b4eda17e0d90b45f15832494c6bd5",
+    "product_git_commit": "345abf725a8ac9265fb6f32e0b696f0c77eeed79",
+    "public_observations_sha256": "252925b91909900890b6cf30f2f48eb6117bff43d700f4cd41d072c956337329",
+    "selection_manifest_sha256": "8c234e654ae83de778d92a8b8e4e1ee473ad86794dc888e307eb2b4729396ced"
+  },
+  "results": {
+    "final_schema_valid_n": 491,
+    "llm_http_attempts_total": 499,
+    "outcome_counts": {
+      "success": 491
+    },
+    "processed_n": 491,
+    "shadow_new_curies_total": 367,
+    "shadow_would_change_n": 382,
+    "validation_retry_n": 8
+  },
+  "schema_version": "omicsplorer-metadata-pilot-public-summary-v1"
+}

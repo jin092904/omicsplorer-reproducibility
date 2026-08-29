@@ -36,6 +36,7 @@ versioned.
 | `protocols/external-services-v1/` | Prespecified pilot and latency query definitions | Descriptive pilot protocol, not a common relevance benchmark |
 | `results/historical_internal/` | Historical aggregate tables | Raw per-query responses and complete effective configuration were not retained |
 | `results/browser_2026-07-20/` | Sanitized observations and derived latency summaries | One date and ingress; no concurrency, regional, or SLA inference |
+| `results/metadata_enrichment_pilot_v1/` | Identifier-free observations and aggregate feasibility tables | Write-disabled execution feasibility; no metadata-accuracy, search-latency, or superiority claim |
 
 The exact exclusions and third-party boundary are documented in `THIRD_PARTY_DATA.md`.
 Checksums for public inputs, protocols, and retained results are recorded in `ARTIFACTS.sha256`.
@@ -62,10 +63,11 @@ distribution.
 
 ```bash
 uv run python scripts/reproduce_browser_artifacts.py
+uv run python scripts/reproduce_metadata_pilot_artifacts.py
 ```
 
-The command writes recomputed CSV files and the tail-latency figure under `build/browser_2026-07-20/`
-and checks the retained metrics against the committed summaries.
+The commands write recomputed files under `build/`, and check the retained public observations
+against the committed summaries. The browser command also renders the tail-latency figure.
 
 ## Validate a future frozen release
 
