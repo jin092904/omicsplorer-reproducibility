@@ -495,6 +495,132 @@ def _non_model_lineage(lineage_id: str, parents: list[str] | None = None) -> dic
     }
 
 
+def _historical_unresolved_lineage(lineage_id: str) -> dict[str, Any]:
+    return {
+        "lineage_id": lineage_id,
+        "parent_lineage_ids": [],
+        "extractor_kind": "historical_unresolved",
+        "checkpoint": None,
+        "revision": None,
+        "weight_digest_sha256": None,
+        "quantization": None,
+        "serving_engine": None,
+        "prompt_path": None,
+        "prompt_sha256": None,
+        "schema_path": None,
+        "schema_sha256": None,
+        "options_path": None,
+        "options_sha256": None,
+        "deterministic_postprocessing_revision": None,
+        "limitations": (
+            "historical output retained as snapshot data; exact extractor runtime "
+            "was not reconstructable"
+        ),
+    }
+
+
+def _replace_fixture_lineage(
+    root: Path,
+    config_path: Path,
+    lineage: dict[str, Any],
+    *,
+    build_stage: str = "historical_unresolved",
+) -> None:
+    accessions_path = root / "accessions.tsv"
+    accessions_path.write_text(
+        accessions_path.read_text(encoding="utf-8").replace(
+            "v1\tlocal-v1\tindexed",
+            f"v1\t{lineage['lineage_id']}\t{build_stage}",
+        ),
+        encoding="utf-8",
+    )
+    lineages_path = root / "structuring-lineages.json"
+    lineages = json.loads(lineages_path.read_text(encoding="utf-8"))
+    lineages["mixed_history_note"] = (
+        "historical extraction version retained without reconstructed model provenance"
+    )
+    lineages["lineages"] = [lineage]
+    _write_json(lineages_path, lineages)
+    raw = json.loads(config_path.read_text(encoding="utf-8"))
+    raw["corpus"]["accession_manifest_sha256"] = _sha(accessions_path)
+    raw["models"]["metadata_structuring"]["lineage_manifest_sha256"] = _sha(
+        lineages_path
+    )
+    _write_json(config_path, raw)
+
+
+def test_config_accepts_one_explicit_historical_unresolved_group(tmp_path: Path) -> None:
+    config_path = _make_config(tmp_path)
+    _replace_fixture_lineage(
+        tmp_path,
+        config_path,
+        _historical_unresolved_lineage("historical-v1-unresolved"),
+    )
+
+    assert load_frozen_config(config_path).release_id == "gpb-appnote-test-v1"
+
+
+def test_config_rejects_historical_unresolved_implementation_claims(tmp_path: Path) -> None:
+    config_path = _make_config(tmp_path)
+    lineage = _historical_unresolved_lineage("historical-v1-unresolved")
+    lineage["checkpoint"] = "inferred/model-tag"
+    _replace_fixture_lineage(tmp_path, config_path, lineage)
+
+    with pytest.raises(FrozenConfigError, match="must use explicit null"):
+        load_frozen_config(config_path)
+
+
+def test_config_rejects_historical_unresolved_resolved_build_stage(tmp_path: Path) -> None:
+    config_path = _make_config(tmp_path)
+    _replace_fixture_lineage(
+        tmp_path,
+        config_path,
+        _historical_unresolved_lineage("historical-v1-unresolved"),
+        build_stage="model_structured",
+    )
+
+    with pytest.raises(FrozenConfigError, match="must use build_stage"):
+        load_frozen_config(config_path)
+
+
+def test_config_rejects_collapsed_historical_extraction_versions(tmp_path: Path) -> None:
+    config_path = _make_config(tmp_path)
+    lineage_id = "historical-mixed-unresolved"
+    _replace_fixture_lineage(
+        tmp_path,
+        config_path,
+        _historical_unresolved_lineage(lineage_id),
+    )
+    accessions_path = tmp_path / "accessions.tsv"
+    accessions_path.write_text(
+        accessions_path.read_text(encoding="utf-8")
+        + (
+            "GEO\tGSE2\td2\tsnapshot-2026-08-25\tv2\t"
+            f"{lineage_id}\thistorical_unresolved\n"
+        ),
+        encoding="utf-8",
+    )
+    dataset_hash = _canonical_set_sha({"d1", "d2"})
+    stores_path = tmp_path / "stores.json"
+    stores = json.loads(stores_path.read_text(encoding="utf-8"))
+    stores["database"]["row_count"] = 2
+    stores["database"]["accession_membership_count"] = 2
+    stores["database"]["dataset_id_set_sha256"] = dataset_hash
+    stores["qdrant"]["point_count"] = 2
+    stores["qdrant"]["dataset_id_set_sha256"] = dataset_hash
+    stores["opensearch"]["document_count"] = 2
+    stores["opensearch"]["dataset_id_set_sha256"] = dataset_hash
+    _write_json(stores_path, stores)
+    raw = json.loads(config_path.read_text(encoding="utf-8"))
+    raw["corpus"]["row_count"] = 2
+    raw["corpus"]["accession_manifest_sha256"] = _sha(accessions_path)
+    raw["corpus"]["stores_manifest_sha256"] = _sha(stores_path)
+    _write_json(config_path, raw)
+
+    with pytest.raises(FrozenConfigError, match="exactly one retained extraction_version"):
+        load_frozen_config(config_path)
+
+
 def test_config_accepts_reachable_parent_lineage(tmp_path: Path) -> None:
     config_path = _make_config(tmp_path)
     lineages_path = tmp_path / "structuring-lineages.json"
@@ -756,6 +882,47 @@ async def test_frozen_runner_aborts_after_invalid_warmup_trace(
     assert manifest["counts"]["attempted"] == 0
 
 
+async def test_release_report_preserves_historical_unresolved_boundary(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    data_dir = _make_query_data(tmp_path)
+    config_path = _make_config(tmp_path)
+    lineage_id = "historical-v1-unresolved"
+    _replace_fixture_lineage(
+        tmp_path,
+        config_path,
+        _historical_unresolved_lineage(lineage_id),
+    )
+    _commit_all(tmp_path)
+    monkeypatch.setenv("GENOFINDER_BEARER_TOKEN", "token-for-test")
+
+    release_dir = tmp_path / "release"
+    await run(
+        set_name="hard_queries",
+        data_dir=data_dir,
+        top_k=20,
+        score_k=10,
+        modes=["bm25_only", "dense_only", "rrf", "rrf_rerank"],
+        seed=42,
+        release_dir=release_dir,
+        freeze_config_path=config_path,
+        repo=tmp_path,
+        client_factory=_FakeClient,
+    )
+
+    report = validate_release_directory(release_dir)
+    assert report["status"] == "GO", report
+    assert report["historical_unresolved"] == {
+        "lineage_count": 1,
+        "dataset_count": 1,
+        "lineage_ids": [lineage_id],
+    }
+    assert report["evidence_boundaries"] == [
+        "Historical-unresolved rows reproduce retrieval against archived metadata but do not "
+        "reproduce or validate the original metadata-generation runtime."
+    ]
+
+
 async def test_frozen_runner_separates_success_zero_and_failure(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -812,6 +979,8 @@ async def test_frozen_runner_separates_success_zero_and_failure(
     assert "token-for-test" not in all_release_text
     report = validate_release_directory(release_dir)
     assert report["status"] == "GO", report
+    assert report["historical_unresolved"] is None
+    assert report["evidence_boundaries"] == []
 
     def refresh_artifact(role: str, path: Path, record_count: int) -> None:
         descriptor = next(item for item in manifest["artifacts"] if item["role"] == role)

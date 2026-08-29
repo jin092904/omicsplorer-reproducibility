@@ -275,7 +275,7 @@ class StoresManifest(_StrictModel):
 class StructuringLineage(_StrictModel):
     lineage_id: str
     parent_lineage_ids: list[str]
-    extractor_kind: Literal["local_model", "non_model"]
+    extractor_kind: Literal["local_model", "non_model", "historical_unresolved"]
     checkpoint: str | None
     revision: str | None
     weight_digest_sha256: str | None
@@ -287,7 +287,7 @@ class StructuringLineage(_StrictModel):
     schema_sha256: str | None
     options_path: str | None
     options_sha256: str | None
-    deterministic_postprocessing_revision: str
+    deterministic_postprocessing_revision: str | None
     limitations: str
 
 
@@ -549,6 +549,10 @@ def _read_structuring_lineages(
                     f"metadata-structuring lineage {lineage.lineage_id!r} references "
                     f"undeclared parent {parent_id!r}"
                 )
+        if lineage.extractor_kind == "historical_unresolved" and parents:
+            errors.append(
+                f"historical-unresolved lineage {lineage.lineage_id!r} cannot declare parents"
+            )
 
     visiting: set[str] = set()
     visited: set[str] = set()
@@ -589,6 +593,8 @@ def _read_structuring_lineages(
         values = lineage.model_dump()
         if lineage.extractor_kind == "local_model":
             missing = [field for field in model_fields if values.get(field) is None]
+            if values.get("deterministic_postprocessing_revision") is None:
+                missing.append("deterministic_postprocessing_revision")
             if missing:
                 errors.append(
                     f"local-model lineage {lineage.lineage_id!r} is incomplete: {missing}"
@@ -631,11 +637,28 @@ def _read_structuring_lineages(
                         )
                     else:
                         errors.extend(_asset_placeholder_issues(resolved, label=label))
-        elif any(values.get(field) is not None for field in model_fields):
-            errors.append(
-                f"non-model lineage {lineage.lineage_id!r} must use explicit null for "
-                "all model, prompt, schema, and options fields"
-            )
+        elif lineage.extractor_kind == "non_model":
+            if any(values.get(field) is not None for field in model_fields):
+                errors.append(
+                    f"non-model lineage {lineage.lineage_id!r} must use explicit null for "
+                    "all model, prompt, schema, and options fields"
+                )
+            if values.get("deterministic_postprocessing_revision") is None:
+                errors.append(
+                    f"non-model lineage {lineage.lineage_id!r} must record an immutable "
+                    "deterministic_postprocessing_revision"
+                )
+        else:
+            unresolved_fields = [
+                field
+                for field in (*model_fields, "deterministic_postprocessing_revision")
+                if values.get(field) is not None
+            ]
+            if unresolved_fields:
+                errors.append(
+                    f"historical-unresolved lineage {lineage.lineage_id!r} must use explicit "
+                    f"null for unreconstructable implementation fields: {unresolved_fields}"
+                )
     return manifest, expected_assets, errors
 
 
@@ -672,6 +695,9 @@ def _read_accession_evidence(
     response_memberships: set[tuple[str, str, str]] = set()
     dataset_ids: set[str] = set()
     lineage_ids: set[str] = set()
+    dataset_ids_by_lineage: dict[str, set[str]] = {}
+    extraction_versions_by_lineage: dict[str, set[str]] = {}
+    build_stages_by_lineage: dict[str, set[str]] = {}
     per_dataset_lineage: dict[str, tuple[str, str, str]] = {}
     accession_to_dataset: dict[tuple[str, str], str] = {}
     for row_number, row in enumerate(rows, start=2):
@@ -710,6 +736,11 @@ def _read_accession_evidence(
             )
         dataset_ids.add(dataset_id)
         lineage_ids.add(lineage_id)
+        dataset_ids_by_lineage.setdefault(lineage_id, set()).add(dataset_id)
+        extraction_versions_by_lineage.setdefault(lineage_id, set()).add(
+            values["extraction_version"]
+        )
+        build_stages_by_lineage.setdefault(lineage_id, set()).add(values["build_stage"])
         lineage_tuple = (
             values["extraction_version"],
             lineage_id,
@@ -731,6 +762,9 @@ def _read_accession_evidence(
         "response_memberships": response_memberships,
         "dataset_id_set_sha256": _canonical_set_sha256(dataset_ids),
         "lineage_ids": lineage_ids,
+        "dataset_ids_by_lineage": dataset_ids_by_lineage,
+        "extraction_versions_by_lineage": extraction_versions_by_lineage,
+        "build_stages_by_lineage": build_stages_by_lineage,
     }, errors
 
 
@@ -768,7 +802,8 @@ def _cross_validate_corpus_evidence(
     errors: list[str] = []
     if accessions is None or stores is None or lineages is None:
         return errors
-    declared_lineages = {lineage.lineage_id for lineage in lineages.lineages}
+    lineage_by_id = {lineage.lineage_id: lineage for lineage in lineages.lineages}
+    declared_lineages = set(lineage_by_id)
     observed_lineages = set(accessions["lineage_ids"])
     undeclared_observed = observed_lineages - declared_lineages
     if undeclared_observed:
@@ -794,6 +829,27 @@ def _cross_validate_corpus_evidence(
             errors.append(
                 "structuring lineage manifest contains a lineage that is not reachable "
                 "from any accession row"
+            )
+
+    for lineage_id in observed_lineages & declared_lineages:
+        lineage = lineage_by_id[lineage_id]
+        versions = accessions["extraction_versions_by_lineage"].get(lineage_id, set())
+        build_stages = accessions["build_stages_by_lineage"].get(lineage_id, set())
+        if lineage.extractor_kind == "historical_unresolved":
+            if len(versions) != 1:
+                errors.append(
+                    f"historical-unresolved lineage {lineage_id!r} must map to exactly one "
+                    "retained extraction_version"
+                )
+            if build_stages != {"historical_unresolved"}:
+                errors.append(
+                    f"historical-unresolved lineage {lineage_id!r} must use build_stage "
+                    "'historical_unresolved' for every row"
+                )
+        elif "historical_unresolved" in build_stages:
+            errors.append(
+                f"resolved lineage {lineage_id!r} cannot use build_stage "
+                "'historical_unresolved'"
             )
 
     expected_hash = str(accessions["dataset_id_set_sha256"])
@@ -1604,6 +1660,8 @@ def validate_release_directory(release_dir: Path) -> dict[str, Any]:
     import a search client and cannot perform network I/O.
     """
     errors: list[str] = []
+    evidence_boundaries: list[str] = []
+    historical_unresolved_summary: dict[str, Any] | None = None
     release_dir = release_dir.resolve()
 
     def check_descriptor(value: Any, label: str) -> Path | None:
@@ -1827,6 +1885,27 @@ def validate_release_directory(release_dir: Path) -> dict[str, Any]:
                 lineages=lineages,
             )
         )
+        if accessions is not None and lineages is not None:
+            unresolved_ids = sorted(
+                lineage.lineage_id
+                for lineage in lineages.lineages
+                if lineage.extractor_kind == "historical_unresolved"
+            )
+            if unresolved_ids:
+                unresolved_dataset_ids: set[str] = set()
+                for lineage_id in unresolved_ids:
+                    unresolved_dataset_ids.update(
+                        accessions["dataset_ids_by_lineage"].get(lineage_id, set())
+                    )
+                historical_unresolved_summary = {
+                    "lineage_count": len(unresolved_ids),
+                    "dataset_count": len(unresolved_dataset_ids),
+                    "lineage_ids": unresolved_ids,
+                }
+                evidence_boundaries.append(
+                    "Historical-unresolved rows reproduce retrieval against archived metadata "
+                    "but do not reproduce or validate the original metadata-generation runtime."
+                )
 
     query_qids: set[str] = set()
     query_order: list[str] = []
@@ -2366,4 +2445,6 @@ def validate_release_directory(release_dir: Path) -> dict[str, Any]:
         "checked_at_utc": utc_now(),
         "release_id": manifest.get("release_id"),
         "errors": errors,
+        "evidence_boundaries": evidence_boundaries,
+        "historical_unresolved": historical_unresolved_summary,
     }
