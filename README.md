@@ -22,8 +22,9 @@ corpus, model, configuration, request-trace, and row-level lineage checks. Accor
   containerized retrieval run has been collected;
 - the validator can preserve explicitly declared `historical_unresolved`
   lineage groups for an archived retrieval snapshot without inventing model
-  provenance; no production row has been annotated and no qualifying snapshot
-  has yet been created;
+  provenance; a fail-closed plan/apply helper for an isolated restored
+  PostgreSQL snapshot is implemented and tested, but no production row has
+  been annotated and no qualifying snapshot has yet been created;
 - the hard-query tables are historical internal regression aggregates;
 - the browser run is a descriptive observation from one ingress, date, and measurement setup;
 - none of these files establishes superiority over another system, a service-level objective,
@@ -86,6 +87,14 @@ uv run python scripts/validate_frozen_release.py \
 ```
 
 Until the command reports `RELEASE GO`, the release must not be described as submission-ready.
+
+For a historical corpus whose original row-level extraction provenance cannot
+be reconstructed, the isolated-snapshot preparation procedure is documented
+under `Historical unresolved lineage policy` in the protocol. Planning is
+read-only; applying a frozen plan requires a separately supplied plan hash,
+an exact isolation acknowledgement, a matching database-local snapshot marker,
+and a temporary role limited to the two lineage columns. This helper is not a
+production migration and does not establish metadata accuracy.
 
 To verify or refresh the checksums after an intentional artifact update:
 
