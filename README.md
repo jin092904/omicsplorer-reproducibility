@@ -123,6 +123,11 @@ Dockerfile, dependency lock, pinned base image, non-root user, and entrypoint.
 Its output is local image-candidate evidence, not proof of registry publication,
 frozen-store execution, response-trace eligibility, or performance.
 
+The declared-user smoke-evidence template and validator then cross-check that
+local image report against one retained OCI bundle and startup-only operator
+record. This consistency check does not replay the container, convert a direct
+OCI-runtime check into Docker/Podman evidence, or establish retrieval or latency.
+
 To verify or refresh the checksums after an intentional artifact update:
 
 ```bash

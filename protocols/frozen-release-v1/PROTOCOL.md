@@ -131,6 +131,23 @@ When an engine limitation requires a lower-level OCI runtime, state that fact;
 do not relabel such a check as a Docker or Podman service run. A health probe
 establishes startup only and is not retrieval, latency, or quality evidence.
 
+Start from `declared-user-smoke-evidence.template.json`, retain it outside Git,
+and cross-check it against the image report and exact OCI bundle configuration:
+
+```bash
+uv run --frozen --offline python scripts/validate_oci_smoke_evidence.py \
+  --smoke-evidence /private/evidence/declared-user-smoke-evidence.json \
+  --image-evidence /private/evidence/container-image-evidence.json \
+  --bundle-config /private/evidence/oci-bundle/config.json \
+  --output /private/evidence/declared-user-smoke-validation.json
+```
+
+This validator checks file hashes, image and entrypoint bindings, non-root
+process IDs, read-only and capability settings, network and health boundaries,
+cleanup fields, runtime labels, and claim limitations. It validates retained
+records only: it does not replay the container or independently prove that a
+reported health observation occurred.
+
 Restore the frozen PostgreSQL, Qdrant, and OpenSearch snapshots into separate
 evaluation stores. Do not bind-mount live production data directories into the
 evaluation stack. Do not start the reference Compose file's migration,

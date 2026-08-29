@@ -1,0 +1,59 @@
+{
+  "schema_version": "omicsplorer-declared-user-smoke-evidence-v1",
+  "recorded_at_utc": "REQUIRED",
+  "execution": {
+    "started_at_utc": "REQUIRED",
+    "ended_at_utc": "REQUIRED",
+    "container_id": "REQUIRED_TRANSIENT_ID",
+    "method": "REQUIRED",
+    "runtime_name": "REQUIRED",
+    "runtime_version": "REQUIRED",
+    "docker_service_run": false,
+    "podman_service_run": false,
+    "runtime_user_override_for_main_process": false
+  },
+  "image_binding": {
+    "product_git_commit": "REQUIRED",
+    "archive_sha256": "REQUIRED",
+    "oci_manifest_digest": "sha256:REQUIRED",
+    "image_config_digest": "sha256:REQUIRED",
+    "container_image_evidence_sha256": "REQUIRED",
+    "oci_bundle_config_sha256": "REQUIRED"
+  },
+  "main_process": {
+    "entrypoint": ["REQUIRED"],
+    "name": "REQUIRED",
+    "real_effective_saved_filesystem_uids": [1, 1, 1, 1],
+    "real_effective_saved_filesystem_gids": [1, 1, 1, 1],
+    "capability_bounding_set_hex": "0000000000000000",
+    "no_new_privileges": true
+  },
+  "isolation": {
+    "root_filesystem_read_only": true,
+    "configured_namespaces": ["pid", "network", "ipc", "uts", "user", "mount"],
+    "health_probe_origin": "REQUIRED_LOOPBACK_BOUNDARY",
+    "host_port_published": false
+  },
+  "health_probe": {
+    "method": "GET",
+    "url": "http://127.0.0.1:8000/api/v1/health",
+    "http_status": 200,
+    "readiness_poll_attempt": 0,
+    "readiness_poll_interval_seconds": 0,
+    "latency_measurement": false
+  },
+  "cleanup": {
+    "termination_signal": "REQUIRED",
+    "container_deleted": true,
+    "matching_container_id_after_cleanup": false,
+    "unrelated_runtime_containers_modified": false
+  },
+  "environment_limitations": {
+    "docker_socket_readable": false,
+    "rootless_podman_subuid_range_configured": false,
+    "rootless_podman_subgid_range_configured": false,
+    "ordinary_docker_or_podman_service_validation_completed": false
+  },
+  "result": "pass_startup_only",
+  "evidence_boundary": "REQUIRED: include does not establish, retrieval, latency, and exact runtime-label boundary"
+}
