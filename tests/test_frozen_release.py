@@ -105,32 +105,44 @@ def _make_config(root: Path) -> Path:
         },
     )
     dataset_hash = _canonical_set_sha({"d1"})
+    membership_hash = _canonical_set_sha({"GEO\tGSE1\td1"})
     _write_json(
         stores,
         {
-            "schema_version": "omicsplorer-store-evidence-v1",
+            "schema_version": "omicsplorer-store-evidence-v2",
             "captured_at_utc": "2026-08-25T00:00:00Z",
+            "source_cross_store_audit_sha256": "f" * 64,
             "database": {
                 "snapshot_id": "db-snapshot-1",
+                "server_version": "18.6",
                 "row_count": 1,
                 "accession_membership_count": 1,
                 "dataset_id_set_sha256": dataset_hash,
+                "accession_membership_sha256": membership_hash,
                 "schema_revision": "alembic-head-1",
             },
             "qdrant": {
                 "snapshot_id": "qdrant-snapshot-1",
+                "version": "1.12.1",
+                "collection": "datasets_v2",
                 "point_count": 1,
                 "dataset_id_set_sha256": dataset_hash,
+                "accession_membership_sha256": membership_hash,
                 "collection_config_sha256": "a" * 64,
             },
             "opensearch": {
                 "snapshot_id": "os-snapshot-1",
+                "version": "3.6.0",
+                "index": "datasets_v2",
                 "document_count": 1,
                 "dataset_id_set_sha256": dataset_hash,
+                "accession_membership_sha256": membership_hash,
                 "mapping_sha256": "b" * 64,
                 "settings_sha256": "c" * 64,
             },
             "cross_store_mismatch_count": 0,
+            "accession_membership_mismatch_count": 0,
+            "evidence_boundary": "synthetic identity-only test evidence",
         },
     )
     translation_prompt.write_text("translate Korean to English\n", encoding="utf-8")
@@ -460,6 +472,21 @@ def test_config_rejects_cross_store_content_mismatch(tmp_path: Path) -> None:
         load_frozen_config(config_path)
 
 
+def test_config_rejects_cross_store_accession_membership_mismatch(
+    tmp_path: Path,
+) -> None:
+    config_path = _make_config(tmp_path)
+    stores_path = tmp_path / "stores.json"
+    stores = json.loads(stores_path.read_text(encoding="utf-8"))
+    stores["opensearch"]["accession_membership_sha256"] = "0" * 64
+    _write_json(stores_path, stores)
+    raw = json.loads(config_path.read_text(encoding="utf-8"))
+    raw["corpus"]["stores_manifest_sha256"] = _sha(stores_path)
+    _write_json(config_path, raw)
+    with pytest.raises(FrozenConfigError, match="OpenSearch accession_membership_sha256"):
+        load_frozen_config(config_path)
+
+
 def test_config_rejects_unmapped_row_extraction_lineage(tmp_path: Path) -> None:
     config_path = _make_config(tmp_path)
     accessions_path = tmp_path / "accessions.tsv"
@@ -601,15 +628,19 @@ def test_config_rejects_collapsed_historical_extraction_versions(tmp_path: Path)
         encoding="utf-8",
     )
     dataset_hash = _canonical_set_sha({"d1", "d2"})
+    membership_hash = _canonical_set_sha({"GEO\tGSE1\td1", "GEO\tGSE2\td2"})
     stores_path = tmp_path / "stores.json"
     stores = json.loads(stores_path.read_text(encoding="utf-8"))
     stores["database"]["row_count"] = 2
     stores["database"]["accession_membership_count"] = 2
     stores["database"]["dataset_id_set_sha256"] = dataset_hash
+    stores["database"]["accession_membership_sha256"] = membership_hash
     stores["qdrant"]["point_count"] = 2
     stores["qdrant"]["dataset_id_set_sha256"] = dataset_hash
+    stores["qdrant"]["accession_membership_sha256"] = membership_hash
     stores["opensearch"]["document_count"] = 2
     stores["opensearch"]["dataset_id_set_sha256"] = dataset_hash
+    stores["opensearch"]["accession_membership_sha256"] = membership_hash
     _write_json(stores_path, stores)
     raw = json.loads(config_path.read_text(encoding="utf-8"))
     raw["corpus"]["row_count"] = 2

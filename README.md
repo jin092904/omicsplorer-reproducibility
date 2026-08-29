@@ -22,12 +22,18 @@ corpus, model, configuration, request-trace, and row-level lineage checks. Accor
   containerized retrieval run has been collected;
 - the validator can preserve explicitly declared `historical_unresolved`
   lineage groups for an archived retrieval snapshot without inventing model
-  provenance; a fail-closed plan/apply helper for an isolated restored
-  PostgreSQL snapshot is implemented and tested, but no production row has
-  been annotated and no qualifying snapshot has yet been created;
+  provenance; an isolated restored PostgreSQL snapshot has been annotated, but
+  those labels explicitly retain unresolved historical provenance;
 - a read-only cross-store audit can stream PostgreSQL rows, Qdrant points, and
   OpenSearch documents to calculate canonical ID and accession-membership
   hashes while keeping exact mismatch identifiers in a separate private file;
+- a separately named common-store PostgreSQL derivative has passed a local
+  zero-mismatch identity audit against the restored search stores; this is
+  operator evidence, not yet a published frozen release;
+- a read-only exporter can create the row-level accession TSV, deterministic
+  gzip, and version-2 store manifest while binding them to that audit; generated
+  corpus files remain outside Git pending identifier, licensing, and release
+  review;
 - the hard-query tables are historical internal regression aggregates;
 - the browser run is a descriptive observation from one ingress, date, and measurement setup;
 - none of these files establishes superiority over another system, a service-level objective,
@@ -103,6 +109,13 @@ After restoring all three stores, use the protocol's `Cross-store snapshot
 audit` procedure before creating a corpus manifest. A nonzero mismatch count
 is a frozen-corpus blocker; the tool does not silently delete or reindex data.
 Exit status 0 establishes identity agreement only and is not `RELEASE GO`.
+
+After a zero-mismatch derivative audit, the protocol's `Corpus and
+store-manifest export` procedure creates the canonical accession TSV and a
+deterministic compressed copy. Large generated corpus artifacts are kept out of
+Git and may be published only after review as immutable release/archive assets
+with their SHA-256 values. A local export does not by itself make the release
+public or submission-ready.
 
 To verify or refresh the checksums after an intentional artifact update:
 
