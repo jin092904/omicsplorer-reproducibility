@@ -117,6 +117,12 @@ Git and may be published only after review as immutable release/archive assets
 with their SHA-256 values. A local export does not by itself make the release
 public or submission-ready.
 
+The protocol's `Local OCI archive inspection` procedure separately checks every
+referenced image blob and binds the archive to a clean public product commit,
+Dockerfile, dependency lock, pinned base image, non-root user, and entrypoint.
+Its output is local image-candidate evidence, not proof of registry publication,
+frozen-store execution, response-trace eligibility, or performance.
+
 To verify or refresh the checksums after an intentional artifact update:
 
 ```bash

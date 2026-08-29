@@ -1,0 +1,38 @@
+{
+  "schema_version": "omicsplorer-oci-image-evidence-v1",
+  "captured_at_utc": "REQUIRED",
+  "evidence_status": "local_unpublished_image_candidate",
+  "source": {
+    "product_git_commit": "REQUIRED",
+    "source_tree_sha": "REQUIRED",
+    "source_worktree_clean": true,
+    "dockerfile_relative_path": "infra/docker/Dockerfile.api",
+    "dockerfile_sha256": "REQUIRED",
+    "dependency_lock_relative_path": "apps/api/uv.lock",
+    "dependency_lock_sha256": "REQUIRED",
+    "declared_user": "REQUIRED_NON_ROOT_USER",
+    "declared_entrypoint": ["REQUIRED"],
+    "pinned_base_image_digests": ["sha256:REQUIRED"],
+    "pinned_dockerfile_frontend_digest": "sha256:REQUIRED"
+  },
+  "builder": {
+    "name": "REQUIRED",
+    "version": "REQUIRED"
+  },
+  "image": {
+    "archive_sha256": "REQUIRED",
+    "archive_size_bytes": 0,
+    "oci_manifest_digest": "sha256:REQUIRED",
+    "image_config_digest": "sha256:REQUIRED",
+    "verified_layer_count": 0,
+    "platform": "REQUIRED",
+    "created_at_utc": "REQUIRED",
+    "declared_user": "REQUIRED_NON_ROOT_USER",
+    "declared_entrypoint": ["REQUIRED"],
+    "index_annotations": {},
+    "all_referenced_descriptor_hashes_and_sizes_verified": true
+  },
+  "smoke_test_status": "separate_operator_evidence_required",
+  "publication_status": "not_published",
+  "evidence_boundary": "REQUIRED"
+}

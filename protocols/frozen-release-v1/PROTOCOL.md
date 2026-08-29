@@ -91,6 +91,46 @@ image ID, as `runtime.container_image_digest`. Preserve the exact image in a
 public immutable registry or archive before submission. A local-only image is
 preliminary operator evidence and cannot satisfy this requirement.
 
+### Local OCI archive inspection
+
+Before connecting an application image to the frozen stores, save it as a
+single-image OCI archive from an exact clean checkout of the public product
+commit. A mutable local tag, engine image ID, engine-storage digest, archive
+file hash, OCI manifest digest, and image-config digest identify different
+objects and must not be reported interchangeably.
+
+Use the read-only inspector to verify every config and layer descriptor in the
+archive and bind the result to the exact product tree, Dockerfile, dependency
+lock, pinned base-image digest, declared non-root user, and JSON entrypoint:
+
+```bash
+uv run --frozen --offline python scripts/inspect_oci_archive.py \
+  --archive /private/evidence/omicsplorer-api.oci.tar \
+  --source-dir /path/to/clean/product-checkout \
+  --expected-product-commit '<40-character-public-commit>' \
+  --dockerfile-relative infra/docker/Dockerfile.api \
+  --lockfile-relative apps/api/uv.lock \
+  --builder-name '<builder-name>' \
+  --builder-version '<builder-version>' \
+  --acknowledgement I_CONFIRM_THIS_IS_A_LOCAL_UNPUBLISHED_IMAGE_CANDIDATE \
+  --output /private/evidence/container-image-evidence.json
+```
+
+The inspector refuses a dirty or different source checkout, an unsafe or
+multi-image archive, missing or altered blobs, descriptor size disagreement,
+an unpinned base image, a root default user, or a Dockerfile/archive user or
+entrypoint mismatch. The generated report remains local operator evidence. It
+does not prove that the image was published, that its declared user was
+successfully exercised, that it used the frozen stores, or that an eligible
+response trace was captured.
+
+Exercise the image's declared user without a runtime user override. Record the
+OCI runtime and version, main-process UID/GID, exact entrypoint, root-filesystem
+mode, capability boundary, health result, network boundary, and cleanup result.
+When an engine limitation requires a lower-level OCI runtime, state that fact;
+do not relabel such a check as a Docker or Podman service run. A health probe
+establishes startup only and is not retrieval, latency, or quality evidence.
+
 Restore the frozen PostgreSQL, Qdrant, and OpenSearch snapshots into separate
 evaluation stores. Do not bind-mount live production data directories into the
 evaluation stack. Do not start the reference Compose file's migration,
