@@ -1,0 +1,40 @@
+{
+  "schema_version": "omicsplorer-evaluation-server-handoff-v1",
+  "created_at_utc": "REQUIRED",
+  "status": "preliminary_private_transfer_candidate",
+  "public_repositories": [
+    {
+      "name": "omicsplorer-product",
+      "url": "https://github.com/REQUIRED/REQUIRED",
+      "commit": "REQUIRED_40_CHARACTER_COMMIT",
+      "final_release_tag_status": "not_created"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "required-artifact-id",
+      "source_path": "/REQUIRED/PRIVATE/SOURCE/PATH",
+      "transfer_path": "artifacts/REQUIRED_FILENAME",
+      "size_bytes": 1,
+      "sha256": "REQUIRED_64_CHARACTER_SHA256",
+      "classification": "private_operator_evidence",
+      "required_on_evaluation_server": true,
+      "publication_status": "not_published",
+      "purpose": "REQUIRED"
+    }
+  ],
+  "total_transfer_size_bytes": 1,
+  "explicitly_excluded": [
+    {
+      "name": "credential and secret values",
+      "reason": "Create new least-privilege values on the target server.",
+      "transfer": false
+    }
+  ],
+  "secrets": {
+    "included": false,
+    "create_new_on_target": true
+  },
+  "known_blockers": ["REQUIRED"],
+  "evidence_boundary": "REQUIRED: this does not establish transfer, restore, retrieval, or latency"
+}

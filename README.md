@@ -128,6 +128,13 @@ local image report against one retained OCI bundle and startup-only operator
 record. This consistency check does not replay the container, convert a direct
 OCI-runtime check into Docker/Podman evidence, or establish retrieval or latency.
 
+When the preparation host cannot run an eligible containerized evaluation, use
+the [evaluation-server handoff procedure](protocols/frozen-release-v1/EVALUATION_SERVER_HANDOFF.md)
+and its manifest validator. GitHub carries public code only; private snapshots,
+the unpublished OCI archive, operator evidence, model artifacts, and newly
+created target secrets remain separate. Handoff validation checks bytes and
+permissions, not restore or scientific results.
+
 To verify or refresh the checksums after an intentional artifact update:
 
 ```bash
