@@ -1,6 +1,6 @@
 # Metadata-enrichment feasibility pilot v1
 
-Status: **input-selection implementation; no model result is included**
+Status: **completed write-disabled feasibility run; identifier-free public aggregates included**
 
 Implementation note (2026-08-28): initial private, pre-eligible five-record smoke diagnostics exposed a
 missing `jsonschema` dependency in the evaluation environment. Ollama returned HTTP 200 and
@@ -132,3 +132,18 @@ DATABASE_URL='postgresql://...' uv run python scripts/run_metadata_pilot_batch.p
 
 The run directory and its files are private operational evidence (`0700` directory, `0600`
 files) and are not committed to this repository.
+
+## Completed run and public derivative
+
+The frozen 491-record run completed under evaluator commit
+`7e2ca6f4f59e7bd4e2e5f6f19a5515cc900d53f3` and product commit
+`345abf725a8ac9265fb6f32e0b696f0c77eeed79`. All 491 records reached the runner's final
+`success` outcome; 483 used one local-LLM HTTP attempt and 8 used the prespecified validation
+retry. The write guard passed, with the observed PostgreSQL selected-row state, Qdrant point
+count, and OpenSearch document count unchanged from run start to run end.
+
+The identifier-free derivative is retained under `results/metadata_enrichment_pilot_v1/`.
+Its observations can reproduce the committed aggregate and timing tables without revealing
+source accessions, input hashes, model predictions, or response text. The result establishes
+execution feasibility under this frozen condition only. It is not metadata-accuracy,
+effectiveness, search-latency, production-throughput, or SLA evidence.

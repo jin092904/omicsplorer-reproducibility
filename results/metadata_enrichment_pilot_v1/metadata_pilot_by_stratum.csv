@@ -1,0 +1,6 @@
+stratum,target_n,processed_n,success_n,non_success_n,final_schema_valid_n,validation_retry_n,llm_http_attempts_total,shadow_would_change_n,shadow_new_curies_total
+sra_phase3,100,100,100,0,100,0,100,94,0
+geo_phi4,100,100,100,0,100,0,100,100,23
+geo_sol4,100,100,100,0,100,0,100,7,8
+geo_stub,100,100,100,0,100,0,100,100,156
+gdc_structured,91,91,91,0,91,8,99,81,180
