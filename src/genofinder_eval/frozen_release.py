@@ -242,34 +242,45 @@ class FrozenEvalConfig(_StrictModel):
 
 class DatabaseStoreEvidence(_StrictModel):
     snapshot_id: str
+    server_version: str
     row_count: int = Field(ge=1)
     accession_membership_count: int = Field(ge=1)
     dataset_id_set_sha256: str
+    accession_membership_sha256: str
     schema_revision: str
 
 
 class QdrantStoreEvidence(_StrictModel):
     snapshot_id: str
+    version: str
+    collection: str
     point_count: int = Field(ge=1)
     dataset_id_set_sha256: str
+    accession_membership_sha256: str
     collection_config_sha256: str
 
 
 class OpenSearchStoreEvidence(_StrictModel):
     snapshot_id: str
+    version: str
+    index: str
     document_count: int = Field(ge=1)
     dataset_id_set_sha256: str
+    accession_membership_sha256: str
     mapping_sha256: str
     settings_sha256: str
 
 
 class StoresManifest(_StrictModel):
-    schema_version: Literal["omicsplorer-store-evidence-v1"]
+    schema_version: Literal["omicsplorer-store-evidence-v2"]
     captured_at_utc: str
+    source_cross_store_audit_sha256: str
     database: DatabaseStoreEvidence
     qdrant: QdrantStoreEvidence
     opensearch: OpenSearchStoreEvidence
     cross_store_mismatch_count: int = Field(ge=0)
+    accession_membership_mismatch_count: int = Field(ge=0)
+    evidence_boundary: str
 
 
 class StructuringLineage(_StrictModel):
@@ -761,6 +772,9 @@ def _read_accession_evidence(
         "dataset_ids": dataset_ids,
         "response_memberships": response_memberships,
         "dataset_id_set_sha256": _canonical_set_sha256(dataset_ids),
+        "accession_membership_sha256": _canonical_set_sha256(
+            {"\t".join(membership[:3]) for membership in membership_keys}
+        ),
         "lineage_ids": lineage_ids,
         "dataset_ids_by_lineage": dataset_ids_by_lineage,
         "extraction_versions_by_lineage": extraction_versions_by_lineage,
@@ -878,8 +892,22 @@ def _cross_validate_corpus_evidence(
     ):
         if observed_hash != expected_hash:
             errors.append(f"{name} dataset_id_set_sha256 differs from accession manifest")
+    expected_membership_hash = str(accessions["accession_membership_sha256"])
+    for name, observed_hash in (
+        ("database", stores.database.accession_membership_sha256),
+        ("Qdrant", stores.qdrant.accession_membership_sha256),
+        ("OpenSearch", stores.opensearch.accession_membership_sha256),
+    ):
+        if observed_hash != expected_membership_hash:
+            errors.append(
+                f"{name} accession_membership_sha256 differs from accession manifest"
+            )
     if stores.cross_store_mismatch_count != 0:
         errors.append("cross_store_mismatch_count must be zero for a release run")
+    if stores.accession_membership_mismatch_count != 0:
+        errors.append(
+            "accession_membership_mismatch_count must be zero for a release run"
+        )
     return errors
 
 

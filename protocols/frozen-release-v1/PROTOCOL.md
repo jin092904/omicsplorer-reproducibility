@@ -312,6 +312,52 @@ successful transformation proves only declared cross-store identity consistency;
 it does not show that the excluded rows were scientifically inferior, that the
 metadata are accurate, or that retrieval is fast or effective.
 
+### Corpus and store-manifest export
+
+Export the accession TSV only after the derivative audit reports zero dataset-ID
+and accession-membership mismatches. Use the database-scoped read-only role; do
+not broaden it to read migration, tenant, user, log, or feedback tables. Obtain
+the Alembic revision separately with an administrator and pass that observed
+value as `--schema-revision`.
+
+The Qdrant and OpenSearch snapshot identifiers must identify the immutable
+source snapshot files or archives, not mutable collection or index names. The
+exporter rechecks the live loopback-only store versions, exact counts, Qdrant
+vector configuration, and OpenSearch mapping against the successful audit. It
+then records the full Qdrant collection-configuration hash and OpenSearch
+settings hash in the version-2 store manifest.
+
+```bash
+DATABASE_URL='<isolated-derivative-read-only-url>' \
+uv run --frozen --offline python scripts/export_frozen_corpus_manifests.py \
+  --snapshot-id '<derivative-snapshot-id>' \
+  --schema-revision '<observed-alembic-revision>' \
+  --audit /private/evidence/cross-store-audit-intersection.json \
+  --qdrant-url http://127.0.0.1:<isolated-qdrant-port> \
+  --qdrant-snapshot-id '<immutable-qdrant-snapshot-id>' \
+  --opensearch-url http://127.0.0.1:<isolated-opensearch-port> \
+  --opensearch-snapshot-id '<immutable-opensearch-snapshot-id>' \
+  --accessions-output /private/evidence/corpus-accessions.tsv \
+  --gzip-output /private/evidence/corpus-accessions.tsv.gz \
+  --stores-output /private/evidence/stores-manifest.json \
+  --acknowledgement I_CONFIRM_THE_AUDIT_IS_ZERO_MISMATCH_AND_PRE_EVALUATION
+```
+
+The TSV is ordered by source, accession, and internal dataset ID and contains
+one row per retained internal ID. Every row carries the derivative snapshot ID,
+historical extraction-version label, lineage ID, and build stage. The exporter
+rejects blanks, tabs, newlines, duplicate accessions, count differences, or any
+ID or accession-membership hash that differs from the audit. Its gzip output is
+deterministic (`mtime=0`, no embedded filename).
+
+Do not commit an accession TSV as an oversized Git blob. Keep generated files
+outside Git until identifier and licensing review is complete. Publish the
+reviewed deterministic gzip as an immutable release/archive asset, publish its
+SHA-256 beside it, and retain the uncompressed TSV locally because the offline
+release validator reads that canonical form. Artifact publication is a later
+release step; successful local export alone is not a public archive or
+submission-ready release.
+
 ## Prespecified run
 
 - Query set: exactly 49 `hard_queries`. The balanced set remains an LLM-assisted

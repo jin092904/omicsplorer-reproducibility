@@ -23,3 +23,8 @@ results/**/raw/
 # Live-corpus pilot manifests contain source accessions and stay outside Git.
 *.private.jsonl
 private/
+
+# Generated accession manifests are reviewed and published as release assets,
+# not committed as oversized Git blobs.
+corpus-accessions.tsv
+corpus-accessions.tsv.gz
