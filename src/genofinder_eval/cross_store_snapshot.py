@@ -160,9 +160,6 @@ async def load_postgresql(
                 snapshot_id,
             )
             server_version = str(await connection.fetchval("SHOW server_version"))
-            alembic_version = str(
-                await connection.fetchval("SELECT version_num FROM alembic_version")
-            )
             native_count = int(await connection.fetchval("SELECT COUNT(*) FROM datasets"))
             snapshot = StoreSnapshot("postgresql", native_count)
             query = """
@@ -181,7 +178,6 @@ async def load_postgresql(
                 "database_name": str(identity["database_name"]),
                 "database_local_snapshot_marker": str(identity["snapshot_marker"]),
                 "server_version": server_version,
-                "alembic_version": alembic_version,
             }
     finally:
         await connection.close()
