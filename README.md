@@ -13,9 +13,11 @@ evidence and derived artifacts defined by this repository's protocol.
 This is a **pre-submission artifact, not yet a public frozen release**. A private rootless-Podman
 run completed on 30 August 2026 and its offline validation report returned `RELEASE GO` for
 technical integrity. A deterministic exporter now produces the sanitized per-query projection
-and independently matches all 392 per-query metric rows and 280 aggregate rows. The public GDC
-review, accession export, committed release bundle, remote release tag, clean-clone archive
-validation, and persistent DOI remain incomplete. Accordingly:
+and independently matches all 392 per-query metric rows and 280 aggregate rows. A local review
+matched all 91 frozen GDC accessions to released records from the unauthenticated official
+projects endpoint, and the resulting 634,485-row public accession candidate passed the reviewed
+field boundary. This establishes projection readiness only. The committed release bundle, remote
+release tag, clean-clone archive validation, and persistent DOI remain incomplete. Accordingly:
 
 - unit-test success demonstrates evaluator behavior only;
 - the private run retained 392/392 planned observations for 49 queries, two languages, and four
@@ -121,11 +123,13 @@ uv run python scripts/export_public_frozen_release.py \
   --output-dir /private/review/path/public-projection-v1
 ```
 
-Without `--gdc-open-review`, the command deliberately omits the public accession TSV and records
-one publication blocker. After every frozen GDC accession has been independently confirmed as an
-open, study-level record, supply a completed review based on
-`protocols/frozen-release-v1/gdc-open-review.template.json`. The exporter rejects a missing,
-extra, duplicate, controlled, or non-study-level record. Sanitized response evidence retains
+Without `--gdc-project-review`, the command deliberately omits the public accession TSV and
+records one publication blocker. After every frozen GDC accession has been independently
+confirmed through the unauthenticated official projects endpoint as a released public
+study-level project record, supply a completed review based on
+`protocols/frozen-release-v1/gdc-project-review.template.json`. This criterion concerns the
+public project record and does not claim that every file in that project is open access. The
+exporter rejects a missing, extra, duplicate, unreleased, or non-study-level record. Sanitized response evidence retains
 public accessions and structured facet fields but excludes titles, snippets, internal dataset
 identifiers, and unrelated source fields. The exclusion diagnostic remains explicitly labelled
 as private-text-derived; the main facet metrics are recomputed from the public projection.

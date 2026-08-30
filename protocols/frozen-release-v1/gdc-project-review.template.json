@@ -1,0 +1,12 @@
+{
+  "notes": [
+    "Create one record for every GDC accession in the frozen corpus; the evaluated run contains 91.",
+    "Confirm every accession through the unauthenticated official GDC projects endpoint, which is the highest project/study-level organization endpoint.",
+    "Record the returned project state without treating it as the file-level open/controlled access classification.",
+    "Set public_metadata_access, released, and study_level_only to true only when the official endpoint supports those project-record claims.",
+    "This review does not claim that every file belonging to a project is open access.",
+    "The exporter requires the reviewed accession set to match the frozen GDC set exactly."
+  ],
+  "records": [],
+  "schema_version": "omicsplorer-gdc-project-review-v1"
+}

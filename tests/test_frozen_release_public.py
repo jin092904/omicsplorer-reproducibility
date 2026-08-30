@@ -11,7 +11,7 @@ from genofinder_eval.frozen_release_public import (
     aggregate_public_observations,
     project_public_metric_observation,
     project_public_observation,
-    validate_gdc_open_review,
+    validate_gdc_project_review,
     validate_public_observations,
 )
 
@@ -173,40 +173,45 @@ def test_public_validation_rejects_fallbacks() -> None:
         validate_public_observations([public], expected_n=1)
 
 
-def test_gdc_open_review_requires_exact_open_study_set(tmp_path: Path) -> None:
+def _gdc_project_record(accession: str) -> dict:
+    return {
+        "accession": accession,
+        "entity_type": "project",
+        "public_metadata_access": True,
+        "released": True,
+        "state": "open",
+        "study_level_only": True,
+    }
+
+
+def test_gdc_project_review_requires_exact_released_study_set(tmp_path: Path) -> None:
     review = tmp_path / "review.json"
     review.write_text(
         json.dumps(
             {
-                "schema_version": "omicsplorer-gdc-open-review-v1",
-                "records": [
-                    {"accession": "GDC-1", "access_status": "open", "study_level_only": True}
-                ],
+                "schema_version": "omicsplorer-gdc-project-review-v1",
+                "records": [_gdc_project_record("GDC-1")],
             }
         ),
         encoding="utf-8",
     )
-    validate_gdc_open_review(review, {"GDC-1"})
+    validate_gdc_project_review(review, {"GDC-1"})
     with pytest.raises(PublicFrozenExportError, match="differ"):
-        validate_gdc_open_review(review, {"GDC-1", "GDC-2"})
+        validate_gdc_project_review(review, {"GDC-1", "GDC-2"})
 
 
-def test_gdc_open_review_rejects_controlled_record(tmp_path: Path) -> None:
+def test_gdc_project_review_rejects_unreleased_record(tmp_path: Path) -> None:
+    record = _gdc_project_record("GDC-1")
+    record["released"] = False
     review = tmp_path / "review.json"
     review.write_text(
         json.dumps(
             {
-                "schema_version": "omicsplorer-gdc-open-review-v1",
-                "records": [
-                    {
-                        "accession": "GDC-1",
-                        "access_status": "controlled",
-                        "study_level_only": True,
-                    }
-                ],
+                "schema_version": "omicsplorer-gdc-project-review-v1",
+                "records": [record],
             }
         ),
         encoding="utf-8",
     )
-    with pytest.raises(PublicFrozenExportError, match="not confirmed open"):
-        validate_gdc_open_review(review, {"GDC-1"})
+    with pytest.raises(PublicFrozenExportError, match="not a released public"):
+        validate_gdc_project_review(review, {"GDC-1"})

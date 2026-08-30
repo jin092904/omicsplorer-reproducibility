@@ -19,7 +19,7 @@ from genofinder_eval.metrics.facet_hard import facet_satisfaction_hard_at_k
 
 PUBLIC_SCHEMA_VERSION = "omicsplorer-frozen-public-projection-v1"
 PUBLIC_RESPONSE_SCHEMA_VERSION = "omicsplorer-frozen-public-response-v1"
-PUBLIC_ACCESSION_SCHEMA_VERSION = "omicsplorer-gdc-open-review-v1"
+GDC_PROJECT_REVIEW_SCHEMA_VERSION = "omicsplorer-gdc-project-review-v1"
 
 PUBLIC_RESULT_FIELDS = (
     "source_db",
@@ -468,24 +468,41 @@ def _scan_accessions(path: Path) -> tuple[int, dict[str, int], set[str], str]:
     return count, dict(sorted(source_counts.items())), gdc_accessions, digest.hexdigest()
 
 
-def validate_gdc_open_review(review_path: Path, expected_accessions: set[str]) -> None:
+def validate_gdc_project_review(review_path: Path, expected_accessions: set[str]) -> None:
     value = json.loads(review_path.read_text(encoding="utf-8"))
-    if not isinstance(value, dict) or value.get("schema_version") != PUBLIC_ACCESSION_SCHEMA_VERSION:
-        raise PublicFrozenExportError("GDC open-review schema_version mismatch")
+    if not isinstance(value, dict) or value.get("schema_version") != GDC_PROJECT_REVIEW_SCHEMA_VERSION:
+        raise PublicFrozenExportError("GDC project-review schema_version mismatch")
     records = value.get("records")
     if not isinstance(records, list):
-        raise PublicFrozenExportError("GDC open-review records must be a list")
+        raise PublicFrozenExportError("GDC project-review records must be a list")
     reviewed: set[str] = set()
     for record in records:
         item = _required_mapping(record, field="GDC review record")
+        if set(item) != {
+            "accession",
+            "entity_type",
+            "public_metadata_access",
+            "released",
+            "state",
+            "study_level_only",
+        }:
+            raise PublicFrozenExportError("GDC project-review fields differ from the whitelist")
         accession = _required_string(item.get("accession"), field="GDC review accession")
-        if item.get("access_status") != "open" or item.get("study_level_only") is not True:
-            raise PublicFrozenExportError(f"GDC accession {accession!r} is not confirmed open/study-level")
+        _required_string(item.get("state"), field="GDC project state")
+        if (
+            item.get("entity_type") != "project"
+            or item.get("public_metadata_access") is not True
+            or item.get("released") is not True
+            or item.get("study_level_only") is not True
+        ):
+            raise PublicFrozenExportError(
+                f"GDC accession {accession!r} is not a released public study-level project record"
+            )
         if accession in reviewed:
             raise PublicFrozenExportError("duplicate GDC review accession")
         reviewed.add(accession)
     if reviewed != expected_accessions:
-        raise PublicFrozenExportError("GDC open-review records differ from the frozen GDC set")
+        raise PublicFrozenExportError("GDC project-review records differ from the frozen GDC set")
 
 
 def _write_public_accessions(private_path: Path, public_path: Path) -> int:
@@ -511,7 +528,7 @@ def export_public_frozen_release(
     private_release: Path,
     output_dir: Path,
     *,
-    gdc_open_review: Path | None = None,
+    gdc_project_review: Path | None = None,
 ) -> dict[str, Any]:
     """Create a checksum-bound public candidate without private narrative fields."""
     private_release = private_release.resolve()
@@ -563,10 +580,15 @@ def export_public_frozen_release(
         accession_source
     )
     blockers: list[str] = []
-    if gdc_open_review is None:
-        blockers.append("GDC open/study-level review is missing; public accession TSV was not written")
+    if gdc_project_review is None:
+        blockers.append(
+            "GDC released public project-record review is missing; public accession TSV was not written"
+        )
     else:
-        validate_gdc_open_review(gdc_open_review, gdc_accessions)
+        validate_gdc_project_review(gdc_project_review, gdc_accessions)
+        review_destination = output_dir / "gdc_project_review.json"
+        shutil.copyfile(gdc_project_review, review_destination)
+        copied.append(_artifact(review_destination, role="gdc_project_review", record_count=len(gdc_accessions)))
         accession_path = output_dir / "corpus_accessions_public.tsv"
         written = _write_public_accessions(accession_source, accession_path)
         if written != accession_count or sha256_file(accession_path) != public_accession_sha256:
@@ -594,9 +616,10 @@ def export_public_frozen_release(
     manifest = {
         "schema_version": PUBLIC_SCHEMA_VERSION,
         "private_release_id": private_validation.get("release_id"),
-        "projection_status": "GO" if not blockers else "GO_WITH_PUBLICATION_BLOCKER",
-        "publication_ready": not blockers,
-        "blockers": blockers,
+        "projection_status": "GO" if not blockers else "GO_WITH_PROJECTION_BLOCKER",
+        "projection_ready": not blockers,
+        "projection_blockers": blockers,
+        "publication_readiness_assessed": False,
         "interpretation": (
             "internal facet-regression evidence; not independent relevance judgement, "
             "metadata accuracy, service latency, throughput, superiority, or an SLA"

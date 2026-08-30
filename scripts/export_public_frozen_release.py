@@ -13,19 +13,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--private-release", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--gdc-open-review", type=Path)
+    parser.add_argument("--gdc-project-review", type=Path)
     args = parser.parse_args()
     manifest = export_public_frozen_release(
         args.private_release,
         args.output_dir,
-        gdc_open_review=args.gdc_open_review,
+        gdc_project_review=args.gdc_project_review,
     )
     print(
         f"public projection {manifest['projection_status']}: "
         f"{manifest['counts']['observations']} observations; "
-        f"publication_ready={manifest['publication_ready']}"
+        f"projection_ready={manifest['projection_ready']}"
     )
-    for blocker in manifest["blockers"]:
+    for blocker in manifest["projection_blockers"]:
         print(f"BLOCKER: {blocker}")
     return 0
 
