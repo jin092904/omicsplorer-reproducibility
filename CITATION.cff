@@ -2,7 +2,8 @@ cff-version: 1.2.0
 message: "If you use these materials, please cite the archived release and the OmicsPlorer paper when available."
 title: "OmicsPlorer manuscript reproducibility materials"
 type: software
-version: "0.1.0-pre"
+version: "0.1.0"
+date-released: 2026-08-30
 authors:
   - family-names: "Lee"
     given-names: "Hojin"
