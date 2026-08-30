@@ -1,0 +1,56 @@
+{
+  "schema_version": "corpus-identity-audit-summary-v1",
+  "candidate_id": "intersection-candidate-2026-08-29",
+  "snapshot_date": "2026-08-29",
+  "derivation_rule": "Retain a row only when its internal dataset identifier and source-accession membership are present consistently in PostgreSQL, Qdrant, and OpenSearch.",
+  "counts": {
+    "isolated_rows": 634656,
+    "excluded_rows": 171,
+    "retained_rows": 634485
+  },
+  "sources": [
+    {
+      "source": "SRA",
+      "rows": 343186
+    },
+    {
+      "source": "GEO",
+      "rows": 291208
+    },
+    {
+      "source": "GDC",
+      "rows": 91
+    }
+  ],
+  "stores": [
+    {
+      "store": "PostgreSQL",
+      "dataset_id_count": 634485
+    },
+    {
+      "store": "Qdrant",
+      "dataset_id_count": 634485
+    },
+    {
+      "store": "OpenSearch",
+      "dataset_id_count": 634485
+    }
+  ],
+  "mismatch_counts": {
+    "dataset_id": 0,
+    "source_accession_membership": 0
+  },
+  "lineage_summary": {
+    "group_count": 5,
+    "status": "historical_unresolved"
+  },
+  "evidence_class": "public aggregate derived from a private source-side audit",
+  "target_restore_status": "not performed",
+  "interpretation_boundaries": [
+    "Identifier consistency under the recorded intersection rule only.",
+    "Not evidence of metadata accuracy.",
+    "Not evidence of repository harvest completeness.",
+    "Not evidence of retrieval effectiveness.",
+    "Not evidence of target-server restoration or execution."
+  ]
+}

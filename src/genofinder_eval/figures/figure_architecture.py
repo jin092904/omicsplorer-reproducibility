@@ -103,7 +103,7 @@ def render(out_dir: Path | None = None) -> None:
                  boxstyle="round,pad=0.4,rounding_size=2", linewidth=0,
                  facecolor=TEAL_BG, zorder=1))
     ax.text(50, 7.5,
-            "historical 629,799-row record  ·  99.6% non-stub status (not accuracy)  ·  bilingual queries  ·  visible ranking evidence",
+            "634,485-row intersection candidate  ·  cross-store identifier mismatches: 0  ·  not metadata accuracy  ·  bilingual queries",
             ha="center", va="center", fontsize=11, color="#0f5f57", fontweight="bold", zorder=2)
 
     for stem in ("fig_architecture",):
