@@ -79,8 +79,12 @@ canonical public-accession hash, and the private three-store ID/membership
 hashes. The latter hashes demonstrate consistency without exposing internal
 identifiers; they do not demonstrate metadata accuracy or source completeness.
 
-Before publication, all 91 GDC rows must be confirmed as open/study-level
-records and the exporter must fail if a controlled-access marker is present.
+Before publication, all 91 GDC accessions must be confirmed through the
+unauthenticated official projects endpoint as released, public, study-level
+project records, and the exporter must fail if a participant/file-level or
+controlled-access marker is present. This permits publication of project
+accession facts; it does not claim that every file belonging to a GDC project
+is open access.
 
 ## Source and model policy basis
 
@@ -109,11 +113,14 @@ terms must be rechecked immediately before DOI publication.
 
 The public release remains blocked until all of the following are true:
 
-1. a deterministic public exporter and tests implement this field boundary;
+1. a deterministic public exporter and tests implement this field boundary
+   (**implemented and locally verified; merge pending**);
 2. public per-query evidence and the public accession manifest pass secret,
-   internal-ID, path, hostname, controlled-access, count, and checksum checks;
+   internal-ID, path, hostname, controlled-access, count, and checksum checks
+   (**locally verified for the derived candidate; publication pending**);
 3. every public aggregate and Figure 3 value is reproduced from the approved
-   public evidence or explicitly bound to a private-only diagnostic;
+   public evidence or explicitly bound to a private-only diagnostic
+   (**locally verified for all 392 per-query and 280 aggregate rows**);
 4. the public bundle is validated from a clean clone;
 5. the release tag is created on public `main`, not on the earlier local
    collection commit;
