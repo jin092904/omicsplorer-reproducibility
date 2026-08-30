@@ -1,0 +1,10 @@
+{
+  "notes": [
+    "Create one record for every GDC accession in the frozen corpus; the evaluated run contains 91.",
+    "Set access_status to open only after checking an official GDC record or API response.",
+    "Set study_level_only to true only when the accession identifies a study/project rather than a participant- or file-level controlled record.",
+    "The exporter requires the reviewed accession set to match the frozen GDC set exactly."
+  ],
+  "records": [],
+  "schema_version": "omicsplorer-gdc-open-review-v1"
+}

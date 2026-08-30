@@ -12,8 +12,10 @@ evidence and derived artifacts defined by this repository's protocol.
 
 This is a **pre-submission artifact, not yet a public frozen release**. A private rootless-Podman
 run completed on 30 August 2026 and its offline validation report returned `RELEASE GO` for
-technical integrity. The public projection, remote release tag, clean-clone archive validation,
-and persistent DOI remain incomplete. Accordingly:
+technical integrity. A deterministic exporter now produces the sanitized per-query projection
+and independently matches all 392 per-query metric rows and 280 aggregate rows. The public GDC
+review, accession export, committed release bundle, remote release tag, clean-clone archive
+validation, and persistent DOI remain incomplete. Accordingly:
 
 - unit-test success demonstrates evaluator behavior only;
 - the private run retained 392/392 planned observations for 49 queries, two languages, and four
@@ -110,6 +112,23 @@ uv run python scripts/validate_frozen_release.py \
 Any newly generated private or public candidate must independently pass its applicable checks.
 The completed private run's `RELEASE GO` does not make an unreviewed public projection or the
 journal submission ready.
+
+To derive a public candidate from a validated private run:
+
+```bash
+uv run python scripts/export_public_frozen_release.py \
+  --private-release /private/path/gpb-application-note-v1 \
+  --output-dir /private/review/path/public-projection-v1
+```
+
+Without `--gdc-open-review`, the command deliberately omits the public accession TSV and records
+one publication blocker. After every frozen GDC accession has been independently confirmed as an
+open, study-level record, supply a completed review based on
+`protocols/frozen-release-v1/gdc-open-review.template.json`. The exporter rejects a missing,
+extra, duplicate, controlled, or non-study-level record. Sanitized response evidence retains
+public accessions and structured facet fields but excludes titles, snippets, internal dataset
+identifiers, and unrelated source fields. The exclusion diagnostic remains explicitly labelled
+as private-text-derived; the main facet metrics are recomputed from the public projection.
 
 For a historical corpus whose original row-level extraction provenance cannot
 be reconstructed, the isolated-snapshot preparation procedure is documented

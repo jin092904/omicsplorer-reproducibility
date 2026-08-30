@@ -109,7 +109,8 @@ terms must be rechecked immediately before DOI publication.
 
 The public release remains blocked until all of the following are true:
 
-1. a deterministic public exporter and tests implement this field boundary;
+1. a deterministic public exporter and tests implement this field boundary
+   (**implemented and locally verified; merge pending**);
 2. public per-query evidence and the public accession manifest pass secret,
    internal-ID, path, hostname, controlled-access, count, and checksum checks;
 3. every public aggregate and Figure 3 value is reproduced from the approved
