@@ -10,16 +10,19 @@ evidence and derived artifacts defined by this repository's protocol.
 
 ## Current status
 
-This is a **pre-submission artifact, not a completed frozen release**. The offline validator and
-release templates are implemented, but no release directory currently satisfies the required
-corpus, model, configuration, request-trace, and row-level lineage checks. Accordingly:
+This is a **pre-submission artifact, not yet a public frozen release**. A private rootless-Podman
+run completed on 30 August 2026 and its offline validation report returned `RELEASE GO` for
+technical integrity. The public projection, remote release tag, clean-clone archive validation,
+and persistent DOI remain incomplete. Accordingly:
 
 - unit-test success demonstrates evaluator behavior only;
-- the application-source trace contract and evaluation-client opt-in are
-  implemented, but no eligible frozen deployment trace has been captured;
-- the frozen retrieval protocol requires an archived OCI application-image
-  manifest digest and isolated restored store snapshots, but no qualifying
-  containerized retrieval run has been collected;
+- the private run retained 392/392 planned observations for 49 queries, two languages, and four
+  modes, with zero missing observation, request failure, zero-result response, configuration
+  deviation, or component fallback;
+- the application-source trace contract and evaluation-client opt-in captured matching
+  requested/effective modes, component states, and canonical configuration hashes;
+- the run used a digest-bound OCI application image and isolated restored PostgreSQL, Qdrant,
+  and OpenSearch stores under rootless Podman;
 - the validator can preserve explicitly declared `historical_unresolved`
   lineage groups for an archived retrieval snapshot without inventing model
   provenance; an isolated restored PostgreSQL snapshot has been annotated, but
@@ -27,7 +30,7 @@ corpus, model, configuration, request-trace, and row-level lineage checks. Accor
 - a read-only cross-store audit can stream PostgreSQL rows, Qdrant points, and
   OpenSearch documents to calculate canonical ID and accession-membership
   hashes while keeping exact mismatch identifiers in a separate private file;
-- a separately named common-store PostgreSQL derivative has passed a local
+- a separately named common-store PostgreSQL derivative passed a target
   zero-mismatch identity audit against the restored search stores; a
   non-identifying aggregate is public under `results/corpus_identity_audit_v1/`,
   but the private row-level audit remains operator evidence rather than a
@@ -36,14 +39,16 @@ corpus, model, configuration, request-trace, and row-level lineage checks. Accor
   gzip, and version-2 store manifest while binding them to that audit; generated
   corpus files remain outside Git pending identifier, licensing, and release
   review;
-- the hard-query tables are historical internal regression aggregates;
+- the retained frozen hard-query results are internal facet-regression evidence, not independent
+  relevance judgements; historical aggregate tables remain separately labelled;
 - the browser run is a descriptive observation from one ingress, date, and measurement setup;
 - none of these files establishes superiority over another system, a service-level objective,
   or metadata-extraction accuracy.
 
-The submission artifact will receive a version tag and archival DOI only after the frozen run
-passes the offline validator and the manuscript's retained values are regenerated or explicitly
-versioned.
+The public submission artifact will receive a new version tag and archival DOI only after the
+approved projection is generated, checked from a clean clone, and matched to the manuscript.
+The earlier local collection tag is not the public submission tag. Publication decisions are
+defined in `protocols/frozen-release-v1/PUBLICATION_SCOPE.md`.
 
 ## Public artifact map
 
@@ -57,6 +62,7 @@ versioned.
 | `results/browser_2026-07-20/` | Sanitized observations and derived latency summaries | One date and ingress; no concurrency, regional, or SLA inference |
 | `results/metadata_enrichment_pilot_v1/` | Identifier-free observations and aggregate feasibility tables | Write-disabled execution feasibility; no metadata-accuracy, search-latency, or superiority claim |
 | `results/corpus_identity_audit_v1/` | Non-identifying counts used by the corpus figure | Source-side identifier consistency only; no row-level audit, metadata-accuracy, source-completeness, target-restore, or retrieval claim |
+| future `results/frozen_retrieval_v1/` | Approved public projection of the technically valid private run | Not present yet; must exclude third-party narrative text and internal identifiers |
 
 The exact exclusions and third-party boundary are documented in `THIRD_PARTY_DATA.md`.
 Checksums for public inputs, protocols, and retained results are recorded in `ARTIFACTS.sha256`.
@@ -101,7 +107,9 @@ uv run python scripts/validate_frozen_release.py \
   --release-dir releases/gpb-application-note-v1
 ```
 
-Until the command reports `RELEASE GO`, the release must not be described as submission-ready.
+Any newly generated private or public candidate must independently pass its applicable checks.
+The completed private run's `RELEASE GO` does not make an unreviewed public projection or the
+journal submission ready.
 
 For a historical corpus whose original row-level extraction provenance cannot
 be reconstructed, the isolated-snapshot preparation procedure is documented
