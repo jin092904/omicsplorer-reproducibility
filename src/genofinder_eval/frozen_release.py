@@ -351,7 +351,10 @@ def _asset_placeholder_issues(path: Path, *, label: str) -> list[str]:
                 for key, item in value.items():
                     key_text = str(key)
                     child = f"{prefix}.{key_text}" if prefix else key_text
-                    if _is_placeholder(key_text):
+                    # ``required`` is a standard JSON Schema keyword.  Keep
+                    # rejecting template markers such as ``REQUIRED_FOO``, but
+                    # do not mistake the exact schema keyword for one.
+                    if key_text.strip().lower() != "required" and _is_placeholder(key_text):
                         issues.append(f"unresolved placeholder key in {label}: {child}")
                     scan(item, child)
             elif isinstance(value, list):
@@ -363,7 +366,8 @@ def _asset_placeholder_issues(path: Path, *, label: str) -> list[str]:
         scan(parsed)
     else:
         for line_number, line in enumerate(text.splitlines(), start=1):
-            if _is_placeholder(line):
+            # Blank lines are normal prompt formatting, not unresolved fields.
+            if line.strip() and _is_placeholder(line):
                 issues.append(f"unresolved placeholder text in {label} at line {line_number}")
     return issues
 

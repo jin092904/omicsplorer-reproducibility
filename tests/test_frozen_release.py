@@ -774,6 +774,46 @@ def test_config_rejects_rehashed_placeholder_asset_content(tmp_path: Path) -> No
         load_frozen_config(config_path)
 
 
+def test_config_accepts_blank_prompt_line_and_json_schema_required_keyword(
+    tmp_path: Path,
+) -> None:
+    config_path = _make_config(tmp_path)
+    prompt_path = tmp_path / "translation-prompt.txt"
+    prompt_path.write_text(
+        "Translate the biomedical query.\n\nReturn one JSON object.\n",
+        encoding="utf-8",
+    )
+    options_path = tmp_path / "translation-options.json"
+    _write_json(
+        options_path,
+        {
+            "format": {
+                "type": "object",
+                "properties": {"query": {"type": "string"}},
+                "required": ["query"],
+            },
+            "temperature": 0,
+        },
+    )
+    prompt_sha = _sha(prompt_path)
+    options_sha = _sha(options_path)
+    effective_path = tmp_path / "effective-server-config.json"
+    effective = json.loads(effective_path.read_text(encoding="utf-8"))
+    effective["translation"]["model"]["prompt_sha256"] = prompt_sha
+    effective["translation"]["model"]["options_sha256"] = options_sha
+    _write_json(effective_path, effective)
+    raw = json.loads(config_path.read_text(encoding="utf-8"))
+    raw["models"]["translation"]["prompt_sha256"] = prompt_sha
+    raw["models"]["translation"]["options_sha256"] = options_sha
+    raw["retrieval"]["effective_configuration_sha256"] = _canonical_json_sha(effective)
+    _write_json(config_path, raw)
+
+    loaded = load_frozen_config(config_path)
+
+    assert loaded.models.translation is not None
+    assert loaded.models.translation.options_sha256 == options_sha
+
+
 def test_effective_trace_rejects_failed_component_state(tmp_path: Path) -> None:
     config = load_frozen_config(_make_config(tmp_path))
     response = {
