@@ -14,11 +14,17 @@ def main() -> int:
     parser.add_argument("--private-release", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--gdc-project-review", type=Path)
+    parser.add_argument(
+        "--accession-output",
+        type=Path,
+        help="optional external release-attachment path for the large public accession TSV",
+    )
     args = parser.parse_args()
     manifest = export_public_frozen_release(
         args.private_release,
         args.output_dir,
         gdc_project_review=args.gdc_project_review,
+        accession_output=args.accession_output,
     )
     print(
         f"public projection {manifest['projection_status']}: "

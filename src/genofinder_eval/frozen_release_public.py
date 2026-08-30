@@ -529,6 +529,7 @@ def export_public_frozen_release(
     output_dir: Path,
     *,
     gdc_project_review: Path | None = None,
+    accession_output: Path | None = None,
 ) -> dict[str, Any]:
     """Create a checksum-bound public candidate without private narrative fields."""
     private_release = private_release.resolve()
@@ -589,11 +590,26 @@ def export_public_frozen_release(
         review_destination = output_dir / "gdc_project_review.json"
         shutil.copyfile(gdc_project_review, review_destination)
         copied.append(_artifact(review_destination, role="gdc_project_review", record_count=len(gdc_accessions)))
-        accession_path = output_dir / "corpus_accessions_public.tsv"
+        accession_path = (
+            accession_output.resolve()
+            if accession_output is not None
+            else output_dir / "corpus_accessions_public.tsv"
+        )
+        if accession_path.exists():
+            raise PublicFrozenExportError("public accession output already exists")
+        accession_path.parent.mkdir(parents=True, exist_ok=True)
         written = _write_public_accessions(accession_source, accession_path)
         if written != accession_count or sha256_file(accession_path) != public_accession_sha256:
             raise PublicFrozenExportError("public accession manifest write verification failed")
-        copied.append(_artifact(accession_path, role="public_accessions", record_count=written))
+        accession_descriptor = _artifact(
+            accession_path, role="public_accessions", record_count=written
+        )
+        accession_descriptor["distribution"] = (
+            "external_release_attachment"
+            if accession_path.parent != output_dir
+            else "projection_directory"
+        )
+        copied.append(accession_descriptor)
 
     validation_report: dict[str, Any] = {
         "schema_version": PUBLIC_SCHEMA_VERSION,
@@ -645,3 +661,179 @@ def export_public_frozen_release(
     manifest_path = output_dir / "publication_manifest.json"
     write_json(manifest_path, manifest)
     return manifest
+
+
+def validate_public_projection_directory(
+    projection_dir: Path,
+    *,
+    accession_asset: Path | None = None,
+) -> dict[str, Any]:
+    """Validate a public projection without reading the private frozen release."""
+    projection_dir = projection_dir.resolve()
+    errors: list[str] = []
+    manifest_path = projection_dir / "publication_manifest.json"
+    if not manifest_path.is_file():
+        return {"status": "NO-GO", "errors": ["publication_manifest.json is missing"]}
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return {"status": "NO-GO", "errors": [f"invalid publication manifest: {exc}"]}
+    if not isinstance(manifest, dict) or manifest.get("schema_version") != PUBLIC_SCHEMA_VERSION:
+        errors.append("publication manifest schema_version mismatch")
+    if manifest.get("projection_status") != "GO" or manifest.get("projection_ready") is not True:
+        errors.append("publication manifest does not mark the projection GO")
+    if manifest.get("projection_blockers") != []:
+        errors.append("publication manifest contains projection blockers")
+    if manifest.get("publication_readiness_assessed") is not False:
+        errors.append("publication manifest must not claim overall publication readiness")
+
+    descriptors = manifest.get("artifacts")
+    if not isinstance(descriptors, list):
+        errors.append("publication manifest artifacts must be a list")
+        descriptors = []
+    expected_roles = {
+        "aggregate_metrics",
+        "failures",
+        "gdc_project_review",
+        "per_query_metrics",
+        "public_accessions",
+        "public_validation_report",
+        "sanitized_responses",
+    }
+    roles = {
+        descriptor.get("role")
+        for descriptor in descriptors
+        if isinstance(descriptor, Mapping)
+    }
+    if roles != expected_roles:
+        errors.append("publication artifact roles differ from the required set")
+
+    paths_by_role: dict[str, Path] = {}
+    external_required = False
+    artifacts_checked = 0
+    for descriptor in descriptors:
+        if not isinstance(descriptor, Mapping):
+            errors.append("publication artifact descriptor is not an object")
+            continue
+        role = descriptor.get("role")
+        name = descriptor.get("path")
+        if not isinstance(role, str) or not isinstance(name, str) or Path(name).name != name:
+            errors.append("publication artifact descriptor has an unsafe path or role")
+            continue
+        if role == "public_accessions" and descriptor.get("distribution") == "external_release_attachment":
+            if accession_asset is None:
+                external_required = True
+                continue
+            path = accession_asset.resolve()
+            if path.name != name:
+                errors.append("external accession asset filename differs from its descriptor")
+        else:
+            path = projection_dir / name
+        paths_by_role[role] = path
+        if not path.is_file():
+            errors.append(f"publication artifact is missing: {name}")
+            continue
+        if path.stat().st_size != descriptor.get("bytes"):
+            errors.append(f"publication artifact byte count differs: {name}")
+        if sha256_file(path) != descriptor.get("sha256"):
+            errors.append(f"publication artifact SHA-256 differs: {name}")
+        artifacts_checked += 1
+
+    response_path = paths_by_role.get("sanitized_responses")
+    metric_path = paths_by_role.get("per_query_metrics")
+    aggregate_path = paths_by_role.get("aggregate_metrics")
+    failures_path = paths_by_role.get("failures")
+    review_path = paths_by_role.get("gdc_project_review")
+    public_report_path = paths_by_role.get("public_validation_report")
+    counts = manifest.get("counts")
+    if not isinstance(counts, Mapping):
+        errors.append("publication manifest counts must be an object")
+        counts = {}
+    observations: list[dict[str, Any]] = []
+    if response_path is not None and response_path.is_file():
+        try:
+            observations = _read_jsonl(response_path)
+            validate_public_observations(
+                observations,
+                expected_n=_required_integer(counts.get("observations"), field="counts.observations"),
+            )
+        except (OSError, PublicFrozenExportError) as exc:
+            errors.append(str(exc))
+    if (
+        observations
+        and metric_path is not None
+        and metric_path.is_file()
+        and aggregate_path is not None
+        and aggregate_path.is_file()
+    ):
+        try:
+            validate_public_metric_files(
+                observations,
+                per_query_metrics_path=metric_path,
+                aggregate_metrics_path=aggregate_path,
+            )
+        except (OSError, PublicFrozenExportError) as exc:
+            errors.append(str(exc))
+    if failures_path is not None and failures_path.is_file() and failures_path.stat().st_size != 0:
+        errors.append("failure ledger is not empty")
+    if public_report_path is not None and public_report_path.is_file():
+        try:
+            public_report = json.loads(public_report_path.read_text(encoding="utf-8"))
+            if not isinstance(public_report, dict) or public_report.get("status") != "GO":
+                errors.append("retained public validation report is not GO")
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"invalid retained public validation report: {exc}")
+
+    reviewed_accessions: set[str] = set()
+    if review_path is not None and review_path.is_file():
+        try:
+            review = json.loads(review_path.read_text(encoding="utf-8"))
+            records = review.get("records") if isinstance(review, dict) else None
+            if not isinstance(records, list):
+                raise PublicFrozenExportError("GDC project-review records must be a list")
+            reviewed_accessions = {
+                str(record.get("accession"))
+                for record in records
+                if isinstance(record, Mapping) and isinstance(record.get("accession"), str)
+            }
+            validate_gdc_project_review(review_path, reviewed_accessions)
+            if len(reviewed_accessions) != counts.get("gdc_accessions_requiring_review"):
+                errors.append("GDC project-review count differs from publication manifest")
+        except (OSError, json.JSONDecodeError, PublicFrozenExportError) as exc:
+            errors.append(str(exc))
+
+    accession_path = paths_by_role.get("public_accessions")
+    if accession_path is not None and accession_path.is_file():
+        try:
+            accession_count, source_counts, gdc_accessions, public_hash = _scan_accessions(
+                accession_path
+            )
+            if accession_count != counts.get("accessions"):
+                errors.append("public accession count differs from publication manifest")
+            if source_counts != counts.get("accessions_by_source"):
+                errors.append("public accession source counts differ from publication manifest")
+            provenance = manifest.get("provenance")
+            if not isinstance(provenance, Mapping) or public_hash != provenance.get(
+                "canonical_public_accession_sha256"
+            ):
+                errors.append("canonical public accession SHA-256 differs from publication manifest")
+            if review_path is not None and review_path.is_file():
+                validate_gdc_project_review(review_path, gdc_accessions)
+        except (OSError, PublicFrozenExportError) as exc:
+            errors.append(str(exc))
+
+    if errors:
+        status = "NO-GO"
+    elif external_required:
+        status = "GO_WITH_EXTERNAL_ATTACHMENT_REQUIRED"
+    else:
+        status = "GO"
+    return {
+        "schema_version": "omicsplorer-public-projection-validation-v1",
+        "status": status,
+        "errors": errors,
+        "artifacts_checked": artifacts_checked,
+        "observations_recomputed": len(observations),
+        "external_accession_attachment_required": external_required,
+        "publication_readiness_assessed": False,
+    }

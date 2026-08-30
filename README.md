@@ -16,8 +16,10 @@ technical integrity. A deterministic exporter now produces the sanitized per-que
 and independently matches all 392 per-query metric rows and 280 aggregate rows. A local review
 matched all 91 frozen GDC accessions to released records from the unauthenticated official
 projects endpoint, and the resulting 634,485-row public accession candidate passed the reviewed
-field boundary. This establishes projection readiness only. The committed release bundle, remote
-release tag, clean-clone archive validation, and persistent DOI remain incomplete. Accordingly:
+field boundary. The Git-sized projection is retained under `results/frozen_retrieval_v1/`, while
+the 73.9 MB accession TSV is checksum-bound as a future release/DOI attachment. This establishes
+projection readiness only. The results PR, remote release tag, clean-clone archive validation,
+and persistent DOI remain incomplete. Accordingly:
 
 - unit-test success demonstrates evaluator behavior only;
 - the private run retained 392/392 planned observations for 49 queries, two languages, and four
@@ -66,7 +68,7 @@ defined in `protocols/frozen-release-v1/PUBLICATION_SCOPE.md`.
 | `results/browser_2026-07-20/` | Sanitized observations and derived latency summaries | One date and ingress; no concurrency, regional, or SLA inference |
 | `results/metadata_enrichment_pilot_v1/` | Identifier-free observations and aggregate feasibility tables | Write-disabled execution feasibility; no metadata-accuracy, search-latency, or superiority claim |
 | `results/corpus_identity_audit_v1/` | Non-identifying counts used by the corpus figure | Source-side identifier consistency only; no row-level audit, metadata-accuracy, source-completeness, target-restore, or retrieval claim |
-| future `results/frozen_retrieval_v1/` | Approved public projection of the technically valid private run | Not present yet; must exclude third-party narrative text and internal identifiers |
+| `results/frozen_retrieval_v1/` | Approved Git-sized public projection of the technically valid private run | 392 sanitized responses and recomputed metrics; large accession TSV remains a checksum-bound release/DOI attachment |
 
 The exact exclusions and third-party boundary are documented in `THIRD_PARTY_DATA.md`.
 Checksums for public inputs, protocols, and retained results are recorded in `ARTIFACTS.sha256`.
@@ -133,6 +135,18 @@ exporter rejects a missing, extra, duplicate, unreleased, or non-study-level rec
 public accessions and structured facet fields but excludes titles, snippets, internal dataset
 identifiers, and unrelated source fields. The exclusion diagnostic remains explicitly labelled
 as private-text-derived; the main facet metrics are recomputed from the public projection.
+
+Validate the retained projection without the pending external attachment:
+
+```bash
+uv run python scripts/validate_public_frozen_projection.py \
+  --projection-dir results/frozen_retrieval_v1 \
+  --allow-missing-external-attachment
+```
+
+For full projection validation, download the exact release attachment described in
+`results/frozen_retrieval_v1/README.md` and pass it with `--accession-asset`. Neither validation
+mode assesses overall publication or journal-submission readiness.
 
 For a historical corpus whose original row-level extraction provenance cannot
 be reconstructed, the isolated-snapshot preparation procedure is documented

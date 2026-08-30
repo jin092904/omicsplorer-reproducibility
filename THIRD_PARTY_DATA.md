@@ -30,5 +30,7 @@ field and archive decision is recorded in
 
 NCBI states that it places no restrictions on molecular-data use or distribution but cannot
 transfer rights that may remain with submitters. GDC distinguishes open from controlled
-access and prohibits reidentification. Accordingly, a public accession manifest is generated
-without internal IDs, and GDC rows require an open/study-level check before publication.
+file access and prohibits reidentification. Accordingly, the public accession manifest omits
+internal IDs. Its 91 GDC accessions were matched to released, publicly retrievable project records
+through the unauthenticated official projects endpoint. This project-record check does not claim
+that every file associated with a project is open access.

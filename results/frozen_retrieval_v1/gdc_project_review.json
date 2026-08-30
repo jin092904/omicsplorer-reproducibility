@@ -1,0 +1,739 @@
+{
+  "api_response_sha256": "b367d7dd4a46d4202ea7d3c6a0f2306edf4f9c5c7e45602bc2ffc09366331f25",
+  "official_api_url": "https://api.gdc.cancer.gov/projects",
+  "official_documentation_url": "https://docs.gdc.cancer.gov/API/Users_Guide/Search_and_Retrieval/",
+  "record_count": 91,
+  "records": [
+    {
+      "accession": "ALCHEMIST-ALCH",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "APOLLO-LUAD",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "APOLLO-OV",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "BEATAML1.0-COHORT",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "BEATAML1.0-CRENOLANIB",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CCDI-MCI",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CCG-CUPP",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CDDP_EAGLE-1",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CGCI-BLGSP",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "submitted",
+      "study_level_only": true
+    },
+    {
+      "accession": "CGCI-HTMCP-CC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CGCI-HTMCP-DLBCL",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CGCI-HTMCP-LC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CMI-ASC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CMI-MBC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CMI-MPC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CPTAC-2",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CPTAC-3",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "CTSP-DLBCL1",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "EXCEPTIONAL_RESPONDERS-ER",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "FM-AD",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "HCMI-CMDC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-B",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-C1",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-H",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-I",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-N",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-P",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-Q",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-R",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-S1",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-S2",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-U",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-W",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-Y",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-Z1A",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-Z1B",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-Z1D",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MATCH-Z1I",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MMRF-COMMPASS",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MP2PRT-ALL",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "MP2PRT-WT",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "NCICCR-DLBCL",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "OHSU-CNL",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "ORGANOID-PANCREATIC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "RC-PTCL",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "REBC-THYR",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TARGET-ALL-P1",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TARGET-ALL-P2",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TARGET-ALL-P3",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TARGET-AML",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TARGET-CCSK",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TARGET-NBL",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TARGET-OS",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TARGET-RT",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TARGET-WT",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-ACC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-BLCA",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-BRCA",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-CESC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-CHOL",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-COAD",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-DLBC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-ESCA",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-GBM",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-HNSC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-KICH",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-KIRC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-KIRP",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-LAML",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-LGG",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-LIHC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-LUAD",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-LUSC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-MESO",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-OV",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-PAAD",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-PCPG",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-PRAD",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-READ",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-SARC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-SKCM",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-STAD",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-TGCT",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-THCA",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-THYM",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-UCEC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-UCS",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TCGA-UVM",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "TRIO-CRU",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "VAREPOP-APOLLO",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    },
+    {
+      "accession": "WCDT-MCRPC",
+      "entity_type": "project",
+      "public_metadata_access": true,
+      "released": true,
+      "state": "open",
+      "study_level_only": true
+    }
+  ],
+  "retrieved_at_utc": "2026-08-30T11:04:42.934407Z",
+  "review_basis": "unauthenticated response from the official GDC projects endpoint; confirms released public project metadata only, not that every associated file is open",
+  "schema_version": "omicsplorer-gdc-project-review-v1"
+}
