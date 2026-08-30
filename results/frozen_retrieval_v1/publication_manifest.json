@@ -1,0 +1,105 @@
+{
+  "artifacts": [
+    {
+      "bytes": 30474,
+      "path": "aggregate_metrics.csv",
+      "record_count": 280,
+      "role": "aggregate_metrics",
+      "sha256": "91c042d9465aa41c226223743f2f35dac85f1610364e9bff15367eb4eb56d955"
+    },
+    {
+      "bytes": 73908720,
+      "distribution": "external_release_attachment",
+      "path": "corpus_accessions_public.tsv",
+      "record_count": 634485,
+      "role": "public_accessions",
+      "sha256": "1f813acbc97e0a23048dff2ab7ad3ad9805f7cca10ffed674b181ca5de370858"
+    },
+    {
+      "bytes": 0,
+      "path": "failures.jsonl",
+      "record_count": 0,
+      "role": "failures",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 18205,
+      "path": "gdc_project_review.json",
+      "record_count": 91,
+      "role": "gdc_project_review",
+      "sha256": "9841cef86644996643770d603ff519e775cc4ae2dab1b2406baed95e73e11baa"
+    },
+    {
+      "bytes": 192468,
+      "path": "per_query_metrics.jsonl",
+      "record_count": 392,
+      "role": "per_query_metrics",
+      "sha256": "f682c2e76bc93c1daf7b5a2cb9176295db45d283c8c5044f210c1dad7a9eba4c"
+    },
+    {
+      "bytes": 3443149,
+      "path": "per_query_responses_public.jsonl",
+      "record_count": 392,
+      "role": "sanitized_responses",
+      "sha256": "9b3548473db8bbb8fd86462fd785bfac2041e806c3a5c18806c12d73a1b72cc9"
+    },
+    {
+      "bytes": 500,
+      "path": "validation_report_public.json",
+      "role": "public_validation_report",
+      "sha256": "bd7ae93c4459ee2fb501f306ebfaf92cd60c20f36fa03a2d8b6dea456670bc61"
+    }
+  ],
+  "counts": {
+    "accessions": 634485,
+    "accessions_by_source": {
+      "GDC": 91,
+      "GEO": 291208,
+      "SRA": 343186
+    },
+    "gdc_accessions_requiring_review": 91,
+    "observations": 392
+  },
+  "field_boundary": {
+    "excluded_field_names": [
+      "abstract_snippet",
+      "access_type",
+      "dataset_id",
+      "has_processed_data",
+      "internal_dataset_id",
+      "library_strategy",
+      "n_samples",
+      "platform",
+      "query_id",
+      "snapshot_id",
+      "sources",
+      "submission_date",
+      "title"
+    ],
+    "exclusion_diagnostic": "retained metric derived from private title/snippet text; not publicly recomputable",
+    "retained_result_fields": [
+      "source_db",
+      "source_id",
+      "rank",
+      "score",
+      "score_breakdown",
+      "disease_ids",
+      "tissue_ids",
+      "cell_type_ids",
+      "modality",
+      "organism_taxid"
+    ]
+  },
+  "interpretation": "internal facet-regression evidence; not independent relevance judgement, metadata accuracy, service latency, throughput, superiority, or an SLA",
+  "private_release_id": "gpb-application-note-v1",
+  "projection_blockers": [],
+  "projection_ready": true,
+  "projection_status": "GO",
+  "provenance": {
+    "canonical_public_accession_sha256": "1f813acbc97e0a23048dff2ab7ad3ad9805f7cca10ffed674b181ca5de370858",
+    "private_accession_manifest_sha256": "78bcb34546f8d934a41a0b082038ca284e35503c56ca76385f27fe4600b634c6",
+    "private_responses_sha256": "dbdeec55818b7839fc221013dcf15e4e496b3230c2e549d906db3bb815857538"
+  },
+  "publication_readiness_assessed": false,
+  "schema_version": "omicsplorer-frozen-public-projection-v1"
+}

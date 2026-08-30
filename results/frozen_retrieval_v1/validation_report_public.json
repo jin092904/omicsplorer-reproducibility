@@ -1,0 +1,14 @@
+{
+  "aggregate_metric_rows_recomputed": 280,
+  "errors": [],
+  "exclusion_diagnostic_recomputed_from_public_projection": false,
+  "facet_metrics_recomputed_from_public_projection": true,
+  "fallback_count": 0,
+  "forbidden_fields_found": 0,
+  "per_query_metrics_matched_to_public_projection": true,
+  "private_release_id": "gpb-application-note-v1",
+  "private_validator_status": "GO",
+  "public_response_count": 392,
+  "schema_version": "omicsplorer-frozen-public-projection-v1",
+  "status": "GO"
+}
