@@ -5,21 +5,24 @@ and selected derived results being prepared for an OmicsPlorer Application Note.
 [OmicsPlorer application source](https://github.com/jin092904/OmicsPlorer) is published
 separately under AGPL-3.0-or-later. Production credentials, the deployed configuration,
 private user data, model weights, and the production corpus are not included in either
-repository; the frozen evaluation release will contain only the publishable configuration
+repository. The frozen evaluation release contains only the publishable configuration
 evidence and derived artifacts defined by this repository's protocol.
 
 ## Current status
 
-This is a **pre-submission artifact, not yet a public frozen release**. A private rootless-Podman
-run completed on 30 August 2026 and its offline validation report returned `RELEASE GO` for
-technical integrity. A deterministic exporter now produces the sanitized per-query projection
-and independently matches all 392 per-query metric rows and 280 aggregate rows. A local review
-matched all 91 frozen GDC accessions to released records from the unauthenticated official
-projects endpoint, and the resulting 634,485-row public accession candidate passed the reviewed
-field boundary. The Git-sized projection is retained under `results/frozen_retrieval_v1/`, while
-the 73.9 MB accession TSV is checksum-bound as a future release/DOI attachment. This establishes
-projection readiness only. The results PR, remote release tag, clean-clone archive validation,
-and persistent DOI remain incomplete. Accordingly:
+The public submission snapshot is tagged
+[`gpb-application-note-public-v1`](https://github.com/jin092904/omicsplorer-reproducibility/releases/tag/gpb-application-note-public-v1).
+A private rootless-Podman run completed on 30 August 2026 and its offline validation report
+returned `RELEASE GO` for technical integrity. A deterministic exporter produced the sanitized
+per-query projection and independently matched all 392 per-query metric rows and 280 aggregate
+rows. A local review matched all 91 frozen GDC accessions to released records from the
+unauthenticated official projects endpoint, and the resulting 634,485-row public accession
+candidate passed the reviewed field boundary. The Git-sized projection is retained under
+`results/frozen_retrieval_v1/`; the exact 73.9 MB accession TSV is attached to the GitHub
+Release. A clean clone of the tag and an unauthenticated redownload of that attachment passed
+the recorded tests, checksums, and full public-projection validation. This establishes public
+projection integrity only. Persistent archive records remain private unsubmitted drafts pending
+contributor review and are not yet public DOI records. Accordingly:
 
 - unit-test success demonstrates evaluator behavior only;
 - the private run retained 392/392 planned observations for 49 queries, two languages, and four
@@ -42,19 +45,19 @@ and persistent DOI remain incomplete. Accordingly:
   but the private row-level audit remains operator evidence rather than a
   published frozen release;
 - a read-only exporter can create the row-level accession TSV, deterministic
-  gzip, and version-2 store manifest while binding them to that audit; generated
-  corpus files remain outside Git pending identifier, licensing, and release
-  review;
+  gzip, and version-2 store manifest while binding them to that audit; the reviewed
+  TSV is a GitHub Release attachment, while private store material and excluded
+  generated files remain outside Git;
 - the retained frozen hard-query results are internal facet-regression evidence, not independent
   relevance judgements; historical aggregate tables remain separately labelled;
 - the browser run is a descriptive observation from one ingress, date, and measurement setup;
 - none of these files establishes superiority over another system, a service-level objective,
   or metadata-extraction accuracy.
 
-The public submission artifact will receive a new version tag and archival DOI only after the
-approved projection is generated, checked from a clean clone, and matched to the manuscript.
-The earlier local collection tag is not the public submission tag. Publication decisions are
-defined in `protocols/frozen-release-v1/PUBLICATION_SCOPE.md`.
+The public tag and GitHub Release are complete. The exact product and reproducibility scopes
+have separate private Zenodo drafts because their license boundaries differ; those records must
+not be cited as public DOI archives until contributor review is complete and both are published.
+Publication decisions are defined in `protocols/frozen-release-v1/PUBLICATION_SCOPE.md`.
 
 ## Public artifact map
 
@@ -68,7 +71,7 @@ defined in `protocols/frozen-release-v1/PUBLICATION_SCOPE.md`.
 | `results/browser_2026-07-20/` | Sanitized observations and derived latency summaries | One date and ingress; no concurrency, regional, or SLA inference |
 | `results/metadata_enrichment_pilot_v1/` | Identifier-free observations and aggregate feasibility tables | Write-disabled execution feasibility; no metadata-accuracy, search-latency, or superiority claim |
 | `results/corpus_identity_audit_v1/` | Non-identifying counts used by the corpus figure | Source-side identifier consistency only; no row-level audit, metadata-accuracy, source-completeness, target-restore, or retrieval claim |
-| `results/frozen_retrieval_v1/` | Approved Git-sized public projection of the technically valid private run | 392 sanitized responses and recomputed metrics; large accession TSV remains a checksum-bound release/DOI attachment |
+| `results/frozen_retrieval_v1/` | Approved Git-sized public projection of the technically valid private run | 392 sanitized responses and recomputed metrics; the checksum-bound accession TSV is a GitHub Release attachment and is intended for the matching archive record |
 
 The exact exclusions and third-party boundary are documented in `THIRD_PARTY_DATA.md`.
 Checksums for public inputs, protocols, and retained results are recorded in `ARTIFACTS.sha256`.
@@ -104,7 +107,7 @@ against the committed summaries. The browser command also renders the tail-laten
 The corpus-identity command validates the public count relationships before writing its PNG
 and PDF to `build/corpus_identity_audit_v1/`; it does not access the private row-level audit.
 
-## Validate a future frozen release
+## Validate a frozen release candidate
 
 The required artifact structure is defined in `protocols/frozen-release-v1/PROTOCOL.md`.
 
@@ -136,7 +139,7 @@ public accessions and structured facet fields but excludes titles, snippets, int
 identifiers, and unrelated source fields. The exclusion diagnostic remains explicitly labelled
 as private-text-derived; the main facet metrics are recomputed from the public projection.
 
-Validate the retained projection without the pending external attachment:
+Validate the retained projection without downloading the external attachment:
 
 ```bash
 uv run python scripts/validate_public_frozen_projection.py \
@@ -198,4 +201,5 @@ uv run python scripts/update_artifact_checksums.py --write
 Code is released under the MIT License. Original data definitions, protocols, result tables,
 figures, and documentation are released under CC BY 4.0; see `LICENSE-DATA.md`. Third-party raw
 records are excluded. Citation metadata are provided in `CITATION.cff`; the paper citation and
-archival DOI will be added after acceptance of the frozen submission artifact.
+archival DOI will be added after the persistent archive is published; the paper citation will be
+added when its bibliographic details are available.

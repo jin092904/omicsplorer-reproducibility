@@ -1,6 +1,6 @@
 # Frozen retrieval public projection v1
 
-Status: projection `GO`; public release tag and DOI not yet issued.
+Status: projection `GO`; public tag and GitHub Release issued; persistent archive DOI pending.
 
 This directory is the reviewed public projection of the private rootless-Podman frozen run
 `gpb-application-note-v1`. It retains the evidence needed to inspect the reported structured
@@ -23,10 +23,12 @@ The snippet-derived exclusion diagnostic is retained as a private-text-derived m
 be independently recomputed from the stripped response projection. The reported main facet
 metrics are recomputed from the retained structured fields.
 
-## External release/DOI attachment
+## External GitHub Release and future archive attachment
 
 The row-level public accession manifest is deliberately not stored in normal Git history. The
-future release and DOI archive must include this exact attachment:
+[`gpb-application-note-public-v1` GitHub Release](https://github.com/jin092904/omicsplorer-reproducibility/releases/tag/gpb-application-note-public-v1)
+includes this exact attachment, and the matching persistent archive is intended to include the
+same bytes after contributor review:
 
 - filename: `corpus_accessions_public.tsv`
 - rows excluding header: 634,485
@@ -40,7 +42,7 @@ completeness, or that every file belonging to a GDC project is open access.
 
 ## Offline validation
 
-Validate the Git-retained projection while acknowledging the not-yet-published attachment:
+Validate the Git-retained projection without downloading the external attachment:
 
 ```bash
 uv run python scripts/validate_public_frozen_projection.py \
