@@ -54,9 +54,11 @@ uv run python scripts/build_complex_query_judgment_workbook.py \
 
 ## 판정 방법
 
-가급적 외부 공유가 없는 로컬 Excel 또는 LibreOffice에서 `judgment-workbook-ko.csv`를 연다. 온라인 스프레드시트로 업로드하면 비공개 평가 파일이 제3자 서비스에 복사될 수 있다.
+가급적 외부 공유가 없는 로컬 Excel 또는 LibreOffice에서 작업용 사본을 연다. 온라인 스프레드시트로 업로드하면 비공개 평가 파일이 제3자 서비스에 복사될 수 있다.
 
-한 세션은 `세션묶음` 한 개씩 진행하며 100행을 넘지 않는다. 시작 전과 종료 후 `session-log-ko.csv`에 한국 표준시와 완료한 `검토순서` 범위를 적는다.
+빈 원본 `judgment-workbook-ko.csv`와 `session-log-ko.csv`는 수정하지 않고 보존한다. 각각 `judgment-workbook-ko.in-progress.csv`와 `session-log-ko.in-progress.csv`라는 사본을 만들어 그 사본만 작성한다. 최종 저장 형식도 UTF-8 CSV로 유지한다.
+
+한 세션은 `세션묶음` 한 개씩 진행하며 100행을 넘지 않는다. 시작 전과 종료 후 작업용 `session-log-ko.in-progress.csv`에 한국 표준시와 완료한 `검토순서` 범위를 적는다.
 
 관련성은 다음 기준으로 기록한다.
 
@@ -75,9 +77,33 @@ uv run python scripts/build_complex_query_judgment_workbook.py \
 
 후보를 확인하기 위해 `원본_GEO_링크`는 열 수 있다. 다만 후보 accession을 OmicsPlorer, NCBI 검색 또는 OmicsDI에서 다시 검색해 어느 시스템이 반환했는지 추정하지 않는다.
 
+## 세션 뒤 자동 확인
+
+각 세션을 저장한 뒤 `partial` 검사로 현재 완료 행 수와 누락된 입력을 확인한다. 이 검사에는 `restricted` 파일이 전혀 필요하지 않다.
+
+```bash
+uv run python scripts/validate_complex_query_judgment_workbook.py \
+  --workbook /private/path/judgment-workbook-ko.in-progress.csv \
+  --template /private/path/judgment-workbook-ko.csv \
+  --manifest /private/path/workbook-manifest.json \
+  --session-log /private/path/session-log-ko.in-progress.csv \
+  --mode partial
+```
+
+검사기는 다음만 확인한다.
+
+- 무작위 행 순서, 질의와 후보 metadata가 바뀌지 않았는지
+- 관련성 값이 `0`–`3`인지
+- 요구된 조건에 `0` 또는 `1`이 입력됐는지
+- 요구하지 않은 조건의 `NA`가 유지됐는지
+- 제외 조건과 근거 부족 값의 형식이 맞는지
+- 완료 행과 남은 행이 몇 개인지
+
+이는 관련성 판단이 맞는지 평가하는 검사가 아니다. 사람의 판단은 그대로 두고 입력 누락과 형식 오류만 찾는다.
+
 ## 1차 판정 완료 뒤
 
-1. 모든 행의 필수 입력이 채워졌는지 자동 검사를 수행한다.
+1. 모든 행의 필수 입력이 채워졌는지 `--mode complete`로 검사한다. 이때 `session-log-ko.in-progress.csv`의 8개 세션 기록도 모두 작성되어야 한다.
 2. 완성된 판정표의 SHA-256을 기록하고 읽기 전용 사본을 만든다.
 3. 첫 판정은 주 분석 값으로 고정한다.
 4. 시스템 정보는 아직 공개하지 않는다.
