@@ -9,6 +9,7 @@ d369c45312bfff48fa6767141d6f1469f788159b3260c9a2afd1b1ecc52ee0bb  protocols/comp
 a471b0d3f6574e3e4e87bf100f916758ed75ac32c3c6e25e38b558955e3a3c6a  protocols/complex-query-evaluation-v1/05-query-and-criteria-review-ko.md
 b9e8153996adc965f5c21730b8c6479c1ae105f28f7d5c3bb27f34909ccb9ff6  protocols/complex-query-evaluation-v1/06-prespecification-freeze-manifest.md
 08401d99d09697d2be34a7d80003e01f353ea44bb60e45a9741becc568017f3a  protocols/complex-query-evaluation-v1/07-protocol-amendment-01-single-query-author.md
+a2ebfbd7f620f3552e376df4ec4ef47379ff5957a3caa0fdbeab073323806156  protocols/complex-query-evaluation-v1/08-collection-input-handoff-ko.md
 bc7397bb20d22b2a74e978d43a571b791c832a63b82dd5768e34baf81b798c69  protocols/complex-query-evaluation-v1/README-ko.md
 e9d47f90131bf0c40c1dce7720f3c855c7ab8bf14e7c8549f100a399c0c9a181  protocols/complex-query-evaluation-v1/SHA256SUMS
 d63da4275b4f691618a585941174208f627a2175afb883372f72259db06d074b  protocols/complex-query-evaluation-v1/validate_workbook.py
