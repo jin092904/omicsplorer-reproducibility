@@ -30,6 +30,11 @@ jobs:
         run: uv run pytest
       - name: Verify public artifact checksums
         run: uv run python scripts/update_artifact_checksums.py --check
+      - name: Validate frozen complex-query prespecification
+        working-directory: protocols/complex-query-evaluation-v1
+        run: |
+          python validate_workbook.py --final
+          sha256sum -c SHA256SUMS
       - name: Validate committed frozen projection
         run: >-
           uv run python scripts/validate_public_frozen_projection.py

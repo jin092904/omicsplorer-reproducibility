@@ -64,6 +64,7 @@ defined in `protocols/frozen-release-v1/PUBLICATION_SCOPE.md`.
 | `data/hard_queries/` | Author-created paired Korean/English internal regression queries | Internal test set, not independent relevance ground truth |
 | `protocols/frozen-release-v1/` | Fail-closed frozen-release contract and templates | Required structure; templates are not completed evidence |
 | `protocols/external-services-v1/` | Prespecified pilot and latency query definitions | Descriptive pilot protocol, not a common relevance benchmark |
+| `protocols/complex-query-evaluation-v1/` | Frozen 60-query human-relevance evaluation protocol and reviewed expected criteria | Prespecified evaluation input; contains no collected results or relevance judgments |
 | `results/historical_internal/` | Historical aggregate tables | Raw per-query responses and complete effective configuration were not retained |
 | `results/browser_2026-07-20/` | Sanitized observations and derived latency summaries | One date and ingress; no concurrency, regional, or SLA inference |
 | `results/metadata_enrichment_pilot_v1/` | Identifier-free observations and aggregate feasibility tables | Write-disabled execution feasibility; no metadata-accuracy, search-latency, or superiority claim |
