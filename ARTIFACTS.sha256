@@ -12,6 +12,7 @@ b9e8153996adc965f5c21730b8c6479c1ae105f28f7d5c3bb27f34909ccb9ff6  protocols/comp
 a2ebfbd7f620f3552e376df4ec4ef47379ff5957a3caa0fdbeab073323806156  protocols/complex-query-evaluation-v1/08-collection-input-handoff-ko.md
 742b49a2e5e84845ced20935da7b7445c2d1b38e56c4711135d4ef25a9460737  protocols/complex-query-evaluation-v1/10-protocol-amendment-02-single-annotator.md
 ae1acb74a9fad1707b95f08a462708cfd0071ad6988db8b41f041c0024344339  protocols/complex-query-evaluation-v1/11-blinded-judgment-workbook-ko.md
+1c79a05e59dba4b99739cd5e974c6be5c5439a43c0851bdbf058e35f6413bf24  protocols/complex-query-evaluation-v1/12-readable-review-pack-ko.md
 bc7397bb20d22b2a74e978d43a571b791c832a63b82dd5768e34baf81b798c69  protocols/complex-query-evaluation-v1/README-ko.md
 e9d47f90131bf0c40c1dce7720f3c855c7ab8bf14e7c8549f100a399c0c9a181  protocols/complex-query-evaluation-v1/SHA256SUMS
 d63da4275b4f691618a585941174208f627a2175afb883372f72259db06d074b  protocols/complex-query-evaluation-v1/validate_workbook.py
