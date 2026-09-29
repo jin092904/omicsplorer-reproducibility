@@ -55,14 +55,25 @@ def _read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
+def _unique_rows(rows: list[dict[str, str]], key_fields: tuple[str, str],
+                 label: str) -> dict[tuple[str, str], dict[str, str]]:
+    unique: dict[tuple[str, str], dict[str, str]] = {}
+    for row in rows:
+        key = (row[key_fields[0]], row[key_fields[1]])
+        if key in unique:
+            raise ValueError(f"duplicate {label} row for {key}")
+        unique[key] = row
+    return unique
+
+
 def load_public_results(results_dir: Path, criteria_path: Path) -> PublicResults:
     """Load and cross-check the public files; every returned accession must be judged."""
     qrels = load_qrels(results_dir / "qrels.tsv")
-    conditions = {(row["qid"], row["accession"]): row
-                  for row in _read_csv(results_dir / "condition_judgments.csv")}
+    conditions = _unique_rows(_read_csv(results_dir / "condition_judgments.csv"), ("qid", "accession"),
+                              "condition judgement")
     if set(conditions) != {(qid, acc) for qid, docs in qrels.items() for acc in docs}:
         raise ValueError("condition judgements and qrels cover different judged pairs")
-    responses = {(row["system"], row["qid"]): row for row in _read_csv(results_dir / "responses.csv")}
+    responses = _unique_rows(_read_csv(results_dir / "responses.csv"), ("system", "qid"), "response")
     ranked: dict[tuple[str, str], list[tuple[int, str]]] = defaultdict(list)
     for row in _read_csv(results_dir / "rankings.csv"):
         ranked[(row["system"], row["qid"])].append((int(row["rank"]), row["accession"]))
@@ -71,6 +82,10 @@ def load_public_results(results_dir: Path, criteria_path: Path) -> PublicResults
         ordered = sorted(ranked.get(pair, []))
         if [rank for rank, _ in ordered] != list(range(1, len(ordered) + 1)):
             raise ValueError(f"non-contiguous ranks for {pair}")
+        if len(ordered) > 10:
+            raise ValueError(f"more than 10 ranked accessions for {pair}")
+        if len({accession for _, accession in ordered}) != len(ordered):
+            raise ValueError(f"duplicate ranked accession for {pair}")
         if len(ordered) != int(response["returned"]):
             raise ValueError(f"returned count differs from ranked rows for {pair}")
         if any(accession not in qrels[pair[1]] for _, accession in ordered):
@@ -271,11 +286,18 @@ def compare_tables(expected_dir: Path, actual: dict[str, list[dict[str, Any]]],
                 break
             for key, value in new.items():
                 try:
-                    if abs(float(old[key]) - float(value)) > tolerance:
-                        problems.append(f"{name} row {index} {key}: {old[key]} != {value}")
+                    old_number, new_number = float(old[key]), float(value)
                 except ValueError:
                     if old[key] != str(value):
                         problems.append(f"{name} row {index} {key}: {old[key]!r} != {value!r}")
+                    continue
+                # A stratum without returned candidates is NaN on both sides; any other NaN or
+                # infinity is a difference (a plain subtraction would let NaN pass silently).
+                if math.isnan(old_number) and math.isnan(new_number):
+                    continue
+                if (not math.isfinite(old_number) or not math.isfinite(new_number)
+                        or abs(old_number - new_number) > tolerance):
+                    problems.append(f"{name} row {index} {key}: {old[key]} != {value}")
     return problems
 
 

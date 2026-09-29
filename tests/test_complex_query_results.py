@@ -160,3 +160,35 @@ def test_compare_tables_reports_changed_values(tiny: Path, tmp_path: Path) -> No
     problems = compare_tables(committed, outputs)
     assert problems and "metrics_summary" in problems[0]
 
+
+def test_compare_tables_treats_one_sided_nan_as_a_difference(tiny: Path, tmp_path: Path) -> None:
+    results = load_public_results(tiny, tiny / "criteria.csv")
+    committed = tmp_path / "derived"
+    outputs = analyze(results, committed)
+    path = committed / "metrics_summary.csv"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    first = lines[1].split(",")
+    first[2] = "nan"  # the "mean" column of a finite value
+    lines[1] = ",".join(first)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    problems = compare_tables(committed, outputs)
+    assert problems == [f"metrics_summary row 0 mean: nan != {outputs['metrics_summary'][0]['mean']}"]
+
+
+def test_duplicate_input_rows_are_rejected(tiny: Path) -> None:
+    rows = list(csv.DictReader((tiny / "responses.csv").open(encoding="utf-8")))
+    _write(tiny / "responses.csv", list(rows[0]), [*rows, rows[0]])
+    with pytest.raises(ValueError, match="duplicate response row"):
+        load_public_results(tiny, tiny / "criteria.csv")
+
+
+def test_duplicate_ranked_accession_is_rejected(tiny: Path) -> None:
+    with (tiny / "rankings.csv").open("a", encoding="utf-8") as handle:
+        handle.write("omicsplorer_geo,Q2,2,GSE5\n")
+    rows = list(csv.DictReader((tiny / "responses.csv").open(encoding="utf-8")))
+    for row in rows:
+        if (row["system"], row["qid"]) == ("omicsplorer_geo", "Q2"):
+            row["returned"] = "2"
+    _write(tiny / "responses.csv", list(rows[0]), rows)
+    with pytest.raises(ValueError, match="duplicate ranked accession"):
+        load_public_results(tiny, tiny / "criteria.csv")
