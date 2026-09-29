@@ -1,0 +1,4 @@
+subset_definition,system,n_queries,mean_ndcg_at_10
+queries where all three systems returned at least one result,ncbi_geo,14,0.4275193986721691
+queries where all three systems returned at least one result,omicsdi_geo,14,0.4680405893705507
+queries where all three systems returned at least one result,omicsplorer_geo,14,0.7621014656435667

@@ -70,6 +70,7 @@ defined in `protocols/frozen-release-v1/PUBLICATION_SCOPE.md`.
 | `results/metadata_enrichment_pilot_v1/` | Identifier-free observations and aggregate feasibility tables | Write-disabled execution feasibility; no metadata-accuracy, search-latency, or superiority claim |
 | `results/corpus_identity_audit_v1/` | Non-identifying counts used by the corpus figure | Source-side identifier consistency only; no row-level audit, metadata-accuracy, source-completeness, target-restore, or retrieval claim |
 | `results/frozen_retrieval_v1/` | Approved Git-sized public projection of the technically valid private run | 392 sanitized responses and recomputed metrics; large accession TSV remains a checksum-bound release/DOI attachment |
+| `results/complex_query_evaluation_v1/` | Public results of the blinded 60-query assessment: 739 graded judgements, condition judgements, returned accessions and ranks, response hashes, corrections, derived tables, and a post-hoc retrieval-path check | Single annotator who is also the developer; pool-based metrics; the OmicsPlorer arm ran without lexical candidates (see its README) |
 
 The exact exclusions and third-party boundary are documented in `THIRD_PARTY_DATA.md`.
 Checksums for public inputs, protocols, and retained results are recorded in `ARTIFACTS.sha256`.
@@ -98,10 +99,13 @@ distribution.
 uv run python scripts/reproduce_browser_artifacts.py
 uv run python scripts/reproduce_metadata_pilot_artifacts.py
 uv run python -m genofinder_eval.figures.figure_corpus
+uv run python scripts/analyze_complex_query_results.py --out build/complex_query_evaluation_v1
 ```
 
 The commands write recomputed files under `build/`, and check the retained public observations
-against the committed summaries. The browser command also renders the tail-latency figure.
+against the committed summaries. The complex-query command recomputes the reported numbers of the
+blinded 60-query assessment from `results/complex_query_evaluation_v1/`; add `--check` to compare
+them with the committed tables instead of writing files. The browser command also renders the tail-latency figure.
 The corpus-identity command validates the public count relationships before writing its PNG
 and PDF to `build/corpus_identity_audit_v1/`; it does not access the private row-level audit.
 
