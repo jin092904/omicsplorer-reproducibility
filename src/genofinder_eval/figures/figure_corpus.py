@@ -3,7 +3,8 @@
 The figure reports row counts and cross-store identity consistency only. It does not
 measure metadata accuracy, source completeness, or retrieval effectiveness.
 
-The command-line entry point writes to build/corpus_identity_audit_v1 by default.
+This is Figure 2 of the manuscript. The command-line entry point writes PNG, PDF, and a
+600-dpi RGB TIFF to build/corpus_identity_audit_v1 by default.
 """
 from __future__ import annotations
 
@@ -18,6 +19,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.patches import FancyBboxPatch
+from matplotlib.ticker import FuncFormatter, MultipleLocator
+from PIL import Image
 
 TEAL = "#0d9488"
 BLUE = "#2563eb"
@@ -140,6 +143,7 @@ def render(out_dir: Path | None = None, summary_path: Path = DEFAULT_SUMMARY) ->
 
     out_dir = out_dir or Path("results/figures")
     out_dir.mkdir(parents=True, exist_ok=True)
+    plt.rcdefaults()
     plt.rcParams.update(
         {
             "font.size": 11,
@@ -170,6 +174,7 @@ def render(out_dir: Path | None = None, summary_path: Path = DEFAULT_SUMMARY) ->
         f"Isolated snapshot\n{counts['isolated_rows']:,} rows",
         facecolor="#f8fafc",
         edgecolor=SLATE,
+        fontsize=10.2,
     )
     _box(
         ax_left,
@@ -180,6 +185,7 @@ def render(out_dir: Path | None = None, summary_path: Path = DEFAULT_SUMMARY) ->
         f"Frozen intersection\n{retained:,} rows",
         facecolor=PALE_TEAL,
         edgecolor=TEAL,
+        fontsize=10.2,
     )
     ax_left.annotate(
         "",
@@ -265,6 +271,8 @@ def render(out_dir: Path | None = None, summary_path: Path = DEFAULT_SUMMARY) ->
     ax_right.set_yticklabels(labels)
     ax_right.invert_yaxis()
     ax_right.set_xlim(0, max(values) * 1.34)
+    ax_right.xaxis.set_major_locator(MultipleLocator(100_000))
+    ax_right.xaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{int(value):,}"))
     ax_right.set_xlabel("rows in frozen intersection")
     ax_right.set_title(
         "B  Source composition", loc="left", fontsize=13, fontweight="bold", pad=12
@@ -282,25 +290,25 @@ def render(out_dir: Path | None = None, summary_path: Path = DEFAULT_SUMMARY) ->
         color=SLATE,
     )
 
-    fig.suptitle(
-        "Frozen corpus candidate — cross-store identity consistency",
-        fontsize=15,
-        fontweight="bold",
-        y=1.02,
-    )
-    fig.text(
-        0.5,
-        -0.015,
-        "Scope: identifier consistency under the recorded intersection rule; not metadata accuracy, source completeness, or retrieval effectiveness.",
-        ha="center",
-        va="top",
-        fontsize=9.2,
-        color=SLATE,
-    )
+    # GPB: figure titles and legends belong in the manuscript, not in the image.
     fig.savefig(out_dir / "fig_corpus_overview.png", dpi=300, bbox_inches="tight")
-    fig.savefig(out_dir / "fig_corpus_overview.pdf", dpi=300, bbox_inches="tight")
+    fig.savefig(
+        out_dir / "fig_corpus_overview.pdf",
+        dpi=300,
+        bbox_inches="tight",
+        metadata={"CreationDate": None, "ModDate": None},
+    )
+    tiff_path = out_dir / "fig_corpus_overview.tiff"
+    fig.savefig(
+        tiff_path,
+        dpi=600,
+        bbox_inches="tight",
+        pil_kwargs={"compression": "tiff_lzw"},
+    )
+    with Image.open(tiff_path) as image:
+        image.convert("RGB").save(tiff_path, compression="tiff_lzw", dpi=(600, 600))
     plt.close(fig)
-    print(f"  wrote {out_dir / 'fig_corpus_overview'}.{{png,pdf}}")
+    print(f"  wrote {out_dir / 'fig_corpus_overview'}.{{png,pdf,tiff}}")
 
 
 def main() -> int:
@@ -315,7 +323,7 @@ def main() -> int:
         "--out-dir",
         type=Path,
         default=ROOT / "build" / "corpus_identity_audit_v1",
-        help="Output directory for fig_corpus_overview.png and .pdf.",
+        help="Output directory for fig_corpus_overview.png, .pdf, and .tiff.",
     )
     args = parser.parse_args()
     render(args.out_dir, args.summary)

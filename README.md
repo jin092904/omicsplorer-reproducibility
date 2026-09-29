@@ -100,14 +100,22 @@ uv run python scripts/reproduce_browser_artifacts.py
 uv run python scripts/reproduce_metadata_pilot_artifacts.py
 uv run python -m genofinder_eval.figures.figure_corpus
 uv run python scripts/analyze_complex_query_results.py --out build/complex_query_evaluation_v1
+uv run python -m genofinder_eval.figures.figure_architecture
+uv run python -m genofinder_eval.figures.figure_complex_query_relevance
 ```
 
 The commands write recomputed files under `build/`, and check the retained public observations
 against the committed summaries. The complex-query command recomputes the reported numbers of the
 blinded 60-query assessment from `results/complex_query_evaluation_v1/`; add `--check` to compare
 them with the committed tables instead of writing files. The browser command also renders the tail-latency figure.
-The corpus-identity command validates the public count relationships before writing its PNG
-and PDF to `build/corpus_identity_audit_v1/`; it does not access the private row-level audit.
+The corpus-identity command validates the public count relationships before writing to
+`build/corpus_identity_audit_v1/`; it does not access the private row-level audit.
+
+The three `genofinder_eval.figures` commands draw the manuscript figures:
+`figure_architecture` draws Figure 1 into `build/figures/`, `figure_corpus` Figure 2, and
+`figure_complex_query_relevance` Figure 3 from `results/complex_query_evaluation_v1/derived/` into
+`build/complex_query_evaluation_v1/`. Each writes PNG, PDF, and the 600-dpi RGB TIFF used for
+submission. With the locked environment, the TIFFs are byte-identical to the submitted files.
 
 ## Validate a future frozen release
 

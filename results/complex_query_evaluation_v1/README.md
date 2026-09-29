@@ -33,10 +33,12 @@ SHA-256 of each raw response, so the private files can be matched to this projec
 ```bash
 uv run python scripts/analyze_complex_query_results.py --out build/complex_query_evaluation_v1
 uv run python scripts/analyze_complex_query_results.py --check
+uv run python -m genofinder_eval.figures.figure_complex_query_relevance
 ```
 
 The first command writes the tables. The second writes nothing: it recomputes the values and
-compares them with the committed tables in `derived/` (tolerance 1e-12).
+compares them with the committed tables in `derived/` (tolerance 1e-12). The third draws
+Figure 3 from the committed tables.
 
 The analysis uses the metric functions in `src/genofinder_eval/external/ranking_metrics.py`. The
 bootstrap uses 10,000 query-level replicates with seed 20260720. The two prespecified paired

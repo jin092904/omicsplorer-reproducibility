@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+from PIL import Image
+
 from genofinder_eval.figures.figure_corpus import DEFAULT_SUMMARY, load_summary, render
 
 
@@ -36,3 +39,6 @@ def test_corpus_identity_figure_renders_from_public_summary(tmp_path: Path) -> N
 
     assert (tmp_path / "fig_corpus_overview.png").stat().st_size > 0
     assert (tmp_path / "fig_corpus_overview.pdf").stat().st_size > 0
+    with Image.open(tmp_path / "fig_corpus_overview.tiff") as image:
+        assert image.mode == "RGB"
+        assert image.info["dpi"] == pytest.approx((600, 600))
