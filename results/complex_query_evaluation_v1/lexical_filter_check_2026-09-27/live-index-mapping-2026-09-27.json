@@ -1,0 +1,150 @@
+{
+ "captured_at_utc": "2026-09-27T13:17:18+00:00",
+ "index": "datasets_v2 (production OpenSearch index queried by the deployed API)",
+ "mapping_properties": {
+  "abstract": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "access_type": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "bioproject_id": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "cell_type_ids": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "dataset_id": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "disease_ids": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "extraction_version": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "has_processed_data": {
+   "type": "boolean"
+  },
+  "library_strategy": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "modality": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "n_samples": {
+   "type": "long"
+  },
+  "organism_taxid": {
+   "type": "long"
+  },
+  "platform": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "source_db": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "source_id": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "submission_date": {
+   "type": "date"
+  },
+  "tissue_ids": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  },
+  "title": {
+   "type": "text",
+   "fields": {
+    "keyword": {
+     "type": "keyword",
+     "ignore_above": 256
+    }
+   }
+  }
+ },
+ "term_counts": {
+  "term source_db=GEO": 0,
+  "term source_db=geo": 291208,
+  "term source_db.keyword=GEO": 291208
+ },
+ "expected_mapping_source": "apps/workers/src/indexer/lexical.py INDEX_BODY (source_db: keyword)"
+}

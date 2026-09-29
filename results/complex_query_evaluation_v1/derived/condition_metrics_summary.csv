@@ -1,0 +1,13 @@
+system,metric,mean,ci95_low,ci95_high,n_queries
+ncbi_geo,strict_all_conditions_success_at_10,0.26666666666666666,0.16666666666666666,0.38333333333333336,60
+ncbi_geo,mean_required_condition_fraction_at_10,0.31726984126984126,0.21872969576719575,0.4195706349206349,60
+ncbi_geo,exclusion_violation_fraction_at_10,0.0,0.0,0.0,60
+ncbi_geo,insufficient_evidence_fraction_at_10,0.04240740740740741,0.010185185185185186,0.08722222222222223,60
+omicsdi_geo,strict_all_conditions_success_at_10,0.18333333333333332,0.08333333333333333,0.2833333333333333,60
+omicsdi_geo,mean_required_condition_fraction_at_10,0.19221031746031744,0.10571378968253967,0.2849304563492064,60
+omicsdi_geo,exclusion_violation_fraction_at_10,0.0,0.0,0.0,60
+omicsdi_geo,insufficient_evidence_fraction_at_10,0.01,0.0,0.02833333333333333,60
+omicsplorer_geo,strict_all_conditions_success_at_10,0.5666666666666667,0.43333333333333335,0.6833333333333333,60
+omicsplorer_geo,mean_required_condition_fraction_at_10,0.5955853174603175,0.5503549603174603,0.6392733134920635,60
+omicsplorer_geo,exclusion_violation_fraction_at_10,0.006666666666666667,0.0,0.018333333333333333,60
+omicsplorer_geo,insufficient_evidence_fraction_at_10,0.235,0.175,0.3,60

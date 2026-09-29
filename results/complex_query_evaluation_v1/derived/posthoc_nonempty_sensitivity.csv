@@ -1,0 +1,3 @@
+subset_definition,reference,comparator,n_queries,reference_mean_ndcg_at_10,comparator_mean_ndcg_at_10,mean_difference,ci95_low,ci95_high,bootstrap_iterations,bootstrap_seed
+queries where ncbi_geo returned at least one result,omicsplorer_geo,ncbi_geo,25,0.7522673320842799,0.42508079835175233,0.32718653373252754,0.1940588367141874,0.45564101980988975,10000,20260720
+queries where omicsdi_geo returned at least one result,omicsplorer_geo,omicsdi_geo,15,0.7657537522832635,0.4745036971739363,0.2912500551093273,0.14685145156279436,0.4276995753026038,10000,20260720
