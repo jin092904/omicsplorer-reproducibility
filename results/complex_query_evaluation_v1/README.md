@@ -48,11 +48,11 @@ Queries for which a system returned nothing stay in every primary metric.
 | Derived table | Manuscript use |
 |---|---|
 | `metrics_summary.csv`, `pairwise_primary_ndcg.csv` | Primary nDCG@10 and secondary metrics (Table S6, Figure 3B) |
-| `response_availability_*.csv` | Queries with at least one result (Figure 3A) |
+| `response_availability_*.csv` | Queries with at least one result (results text) |
 | `condition_metrics_*.csv` | Strict all-condition Success@10 (Figure 3C) |
 | `metrics_by_difficulty.csv`, `condition_metrics_by_difficulty.csv` | Difficulty strata (Table S7) |
 | `latency_summary.csv` | Collector wall time; not browser latency |
-| `posthoc_returned_candidate_yield.csv` | Post-hoc relevant share of returned candidates (Table S6a) |
+| `posthoc_returned_candidate_yield.csv` | Post-hoc relevant share of returned candidates (Table S6a) and the ten-slot composition per query (Figure 3A) |
 | `posthoc_nonempty_sensitivity.csv` | Post-hoc subsets where a comparator returned results |
 | `posthoc_all_systems_nonempty.csv` | Post-hoc subset of 14 queries where all three systems returned results (Table S7 text) |
 

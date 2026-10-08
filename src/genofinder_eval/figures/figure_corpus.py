@@ -18,18 +18,18 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
-from matplotlib.patches import FancyBboxPatch
-from matplotlib.ticker import FuncFormatter, MultipleLocator
+from matplotlib.patches import FancyArrowPatch, Rectangle
+from matplotlib.ticker import FuncFormatter, MultipleLocator, NullLocator
 from PIL import Image
 
-TEAL = "#0d9488"
-BLUE = "#2563eb"
-AMBER = "#d97706"
-SLATE = "#64748b"
-PALE_TEAL = "#ccfbf1"
-PALE_AMBER = "#fef3c7"
-INK = "#1c1917"
-GRID = "#d6d3d1"
+# ggplot2 theme_gray colours, so the three manuscript figures share one look.
+PANEL = "#EBEBEB"  # panel background (grey92)
+STRIP = "#D9D9D9"  # facet strip (grey85)
+BAR = "#595959"  # geom_col default fill (grey35)
+INK = "#1A1A1A"  # grey10
+AXIS_TEXT = "#4D4D4D"  # grey30
+TICK = "#333333"  # grey20
+ARROW = "#4D4D4D"
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SUMMARY = (
@@ -96,41 +96,29 @@ def load_summary(path: Path = DEFAULT_SUMMARY) -> CorpusSummary:
     return summary
 
 
+def _gg_axes(ax: Axes) -> None:
+    ax.set_facecolor(PANEL)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.grid(which="major", color="white", linewidth=0.6)
+    ax.grid(which="minor", color="white", linewidth=0.3)
+    ax.set_axisbelow(True)
+    ax.tick_params(colors=TICK, labelcolor=AXIS_TEXT, length=2.5, width=0.5, labelsize=6.5)
+
+
+def _tag(ax: Axes, letter: str, title: str) -> None:
+    ax.text(0, 1.03, letter, transform=ax.transAxes, fontsize=9, fontweight="bold",
+            ha="left", va="bottom", color=INK)
+    ax.text(0.06, 1.03, title, transform=ax.transAxes, fontsize=7.5, ha="left", va="bottom",
+            color=INK)
+
+
 def _box(
-    ax: Axes,
-    x: float,
-    y: float,
-    width: float,
-    height: float,
-    text: str,
-    *,
-    facecolor: str,
-    edgecolor: str,
-    fontsize: float = 11,
+    ax: Axes, x: float, y: float, width: float, height: float, text: str, facecolor: str
 ) -> None:
-    patch = FancyBboxPatch(
-        (x, y),
-        width,
-        height,
-        boxstyle="round,pad=0.018,rounding_size=0.025",
-        linewidth=1.4,
-        edgecolor=edgecolor,
-        facecolor=facecolor,
-        transform=ax.transAxes,
-    )
-    ax.add_patch(patch)
-    ax.text(
-        x + width / 2,
-        y + height / 2,
-        text,
-        transform=ax.transAxes,
-        ha="center",
-        va="center",
-        fontsize=fontsize,
-        color=INK,
-        fontweight="bold",
-        linespacing=1.25,
-    )
+    ax.add_patch(Rectangle((x, y), width, height, linewidth=0, facecolor=facecolor, zorder=2))
+    ax.text(x + width / 2, y + height / 2, text, ha="center", va="center", fontsize=6.8,
+            color=INK, linespacing=1.35, zorder=3)
 
 
 def render(out_dir: Path | None = None, summary_path: Path = DEFAULT_SUMMARY) -> None:
@@ -141,161 +129,84 @@ def render(out_dir: Path | None = None, summary_path: Path = DEFAULT_SUMMARY) ->
     source_counts = {item["source"]: item["rows"] for item in summary["sources"]}
     sources = [(source, source_counts[source]) for source in ("SRA", "GEO", "GDC")]
 
+    isolated = counts["isolated_rows"]
+    excluded = counts["excluded_rows"]
+    stores = [item["store"] for item in summary["stores"]]
+    id_mismatches = mismatch_counts["dataset_id"]
+    accession_mismatches = mismatch_counts["source_accession_membership"]
     out_dir = out_dir or Path("results/figures")
     out_dir.mkdir(parents=True, exist_ok=True)
     plt.rcdefaults()
-    plt.rcParams.update(
-        {
-            "font.size": 11,
-            "text.color": INK,
-            "axes.labelcolor": INK,
-            "xtick.color": INK,
-            "ytick.color": INK,
-        }
-    )
+    plt.rcParams.update({"font.size": 7, "text.color": INK})
+    # 7.1 in (about 18 cm) is the full text width, so printed text stays at 6–8 pt.
     fig, (ax_left, ax_right) = plt.subplots(
-        1, 2, figsize=(11.2, 4.8), gridspec_kw={"width_ratios": [1.12, 1]}
+        1, 2, figsize=(7.1, 2.7), gridspec_kw={"width_ratios": [1, 1], "wspace": 0.26}
     )
+    fig.subplots_adjust(left=0.035, right=0.965, top=0.88, bottom=0.16)
 
+    # Panel A: predeclared common-store intersection rule and identity audit.
+    ax_left.set_xlim(0, 100)
+    ax_left.set_ylim(0, 100)
     ax_left.set_axis_off()
-    ax_left.set_title(
-        "A  Frozen intersection and identity audit",
-        loc="left",
-        fontsize=13,
-        fontweight="bold",
-        pad=12,
-    )
+    _tag(ax_left, "A", "Identity audit across the three stores")
+    _box(ax_left, 2, 64, 37, 30, f"Isolated snapshot\n{isolated:,} rows", PANEL)
+    _box(ax_left, 61, 64, 37, 30, f"Retained in all\nthree stores\n{retained:,} rows", STRIP)
+    ax_left.add_patch(FancyArrowPatch((41, 79), (59, 79), arrowstyle="-|>", mutation_scale=9,
+                                      linewidth=1.2, color=ARROW))
+    ax_left.text(50, 86, f"−{excluded:,}", ha="center", va="bottom", fontsize=6.8, color=INK)
+    ax_left.text(50, 72, "not in all\nthree stores", ha="center", va="top", fontsize=5.8,
+                 color=AXIS_TEXT, linespacing=1.2)
+    store_text = "  ·  ".join(stores)
+    _box(ax_left, 2, 33, 96, 22, f"{store_text}\n{retained:,} dataset IDs in each store", PANEL)
     _box(
         ax_left,
-        0.02,
-        0.65,
-        0.37,
-        0.18,
-        f"Isolated snapshot\n{counts['isolated_rows']:,} rows",
-        facecolor="#f8fafc",
-        edgecolor=SLATE,
-        fontsize=10.2,
-    )
-    _box(
-        ax_left,
-        0.61,
-        0.65,
-        0.37,
-        0.18,
-        f"Frozen intersection\n{retained:,} rows",
-        facecolor=PALE_TEAL,
-        edgecolor=TEAL,
-        fontsize=10.2,
-    )
-    ax_left.annotate(
-        "",
-        xy=(0.59, 0.74),
-        xytext=(0.41, 0.74),
-        xycoords="axes fraction",
-        arrowprops={"arrowstyle": "-|>", "color": SLATE, "lw": 1.8},
-    )
-    ax_left.text(
-        0.50,
-        0.87,
-        f"exclude {counts['excluded_rows']:,}",
-        transform=ax_left.transAxes,
-        ha="center",
-        va="center",
-        fontsize=10.5,
-        fontweight="bold",
-        color=AMBER,
-    )
-    ax_left.text(
-        0.50,
-        0.56,
-        "not present consistently\nin all three stores",
-        transform=ax_left.transAxes,
-        ha="center",
-        va="center",
-        fontsize=9,
-        color=SLATE,
-        linespacing=1.2,
+        2,
+        2,
+        96,
+        22,
+        f"Dataset-ID mismatches: {id_mismatches:,}\n"
+        f"Source-accession membership mismatches: {accession_mismatches:,}",
+        STRIP,
     )
 
-    store_text = "   ·   ".join(item["store"] for item in summary["stores"])
-    _box(
-        ax_left,
-        0.08,
-        0.34,
-        0.84,
-        0.14,
-        f"{store_text}\n{retained:,} dataset IDs in each store",
-        facecolor="#eff6ff",
-        edgecolor=BLUE,
-        fontsize=10.5,
-    )
-    _box(
-        ax_left,
-        0.07,
-        0.10,
-        0.86,
-        0.13,
-        f"Dataset-ID mismatches: {mismatch_counts['dataset_id']:,}\n"
-        "Source-accession membership mismatches: "
-        f"{mismatch_counts['source_accession_membership']:,}",
-        facecolor=PALE_AMBER,
-        edgecolor=AMBER,
-        fontsize=9.2,
-    )
-
+    # Panel B: mutually exclusive source rows in the retained derivative.
+    _gg_axes(ax_right)
     labels = [source for source, _ in sources]
     values = [value for _, value in sources]
     y = list(range(len(sources)))
-    bars = ax_right.barh(
-        y,
-        values,
-        0.58,
-        color=[TEAL, BLUE, AMBER],
-        edgecolor="white",
-        linewidth=0.7,
-    )
+    bars = ax_right.barh(y, values, 0.62, color=BAR, zorder=3)
     for bar, value in zip(bars, values, strict=True):
         pct = 100 * value / retained
         pct_text = f"{pct:.3f}%" if pct < 0.1 else f"{pct:.1f}%"
         ax_right.annotate(
-            f"{value:,}  ({pct_text})",
+            f"{value:,} ({pct_text})",
             (value, bar.get_y() + bar.get_height() / 2),
-            xytext=(6, 0),
+            xytext=(3, 0),
             textcoords="offset points",
             va="center",
-            fontsize=10.5,
-            fontweight="bold",
+            fontsize=6.5,
             color=INK,
         )
     ax_right.set_yticks(y)
     ax_right.set_yticklabels(labels)
     ax_right.invert_yaxis()
-    ax_right.set_xlim(0, max(values) * 1.34)
+    ax_right.set_xlim(0, 500_000)
     ax_right.xaxis.set_major_locator(MultipleLocator(100_000))
+    ax_right.xaxis.set_minor_locator(MultipleLocator(50_000))
+    ax_right.yaxis.set_minor_locator(NullLocator())
     ax_right.xaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{int(value):,}"))
-    ax_right.set_xlabel("rows in frozen intersection")
-    ax_right.set_title(
-        "B  Source composition", loc="left", fontsize=13, fontweight="bold", pad=12
-    )
-    ax_right.grid(axis="x", alpha=0.45, color=GRID)
-    ax_right.set_axisbelow(True)
-    ax_right.spines["top"].set_visible(False)
-    ax_right.spines["right"].set_visible(False)
-    ax_right.text(
-        0.02,
-        0.05,
-        "K-BDS was not included in this candidate.",
-        transform=ax_right.transAxes,
-        fontsize=9.2,
-        color=SLATE,
-    )
+    ax_right.set_xlabel("Rows in the retained corpus", fontsize=7, color=INK, labelpad=3)
+    ax_right.grid(axis="y", which="major", color="white", linewidth=0.6)
+    ax_right.tick_params(which="minor", length=0)
+    _tag(ax_right, "B", "Source composition")
 
     # GPB: figure titles and legends belong in the manuscript, not in the image.
-    fig.savefig(out_dir / "fig_corpus_overview.png", dpi=300, bbox_inches="tight")
+    fig.savefig(out_dir / "fig_corpus_overview.png", dpi=300, bbox_inches="tight", pad_inches=0.06)
     fig.savefig(
         out_dir / "fig_corpus_overview.pdf",
         dpi=300,
         bbox_inches="tight",
+        pad_inches=0.06,
         metadata={"CreationDate": None, "ModDate": None},
     )
     tiff_path = out_dir / "fig_corpus_overview.tiff"
@@ -303,6 +214,7 @@ def render(out_dir: Path | None = None, summary_path: Path = DEFAULT_SUMMARY) ->
         tiff_path,
         dpi=600,
         bbox_inches="tight",
+        pad_inches=0.06,
         pil_kwargs={"compression": "tiff_lzw"},
     )
     with Image.open(tiff_path) as image:

@@ -24,6 +24,10 @@ def test_relevance_panels_use_the_reported_values() -> None:
     assert [round(item.mean, 3) for item in values.strict_success_at_10] == [0.567, 0.267, 0.183]
     for item in values.ndcg_at_10 + values.strict_success_at_10:
         assert item.low <= item.mean <= item.high
+    # Panel A: grade-3, grade-2, and grade-0/1 candidates per query (277, 80, and 52 relevant).
+    relevant_per_query = [grade3 + grade2 for grade3, grade2, _ in values.slot_composition]
+    assert [round(value * 60) for value in relevant_per_query] == [277, 80, 52]
+    assert [round(sum(item) * 60) for item in values.slot_composition] == [600, 109, 65]
 
 
 def test_relevance_panels_reject_a_missing_system(tmp_path: Path) -> None:
@@ -32,9 +36,14 @@ def test_relevance_panels_reject_a_missing_system(tmp_path: Path) -> None:
         "response_availability_summary.csv",
         "metrics_summary.csv",
         "condition_metrics_summary.csv",
+        "posthoc_returned_candidate_yield.csv",
     ):
         lines = (derived / name).read_text(encoding="utf-8").splitlines(keepends=True)
-        kept = [line for line in lines if not line.startswith("omicsdi_geo,")]
+        kept = [
+            line
+            for line in lines
+            if not line.startswith("omicsdi_geo,") and ",omicsdi_geo," not in line
+        ]
         (tmp_path / name).write_text("".join(kept), encoding="utf-8")
 
     with pytest.raises(ValueError, match="omicsdi_geo"):
