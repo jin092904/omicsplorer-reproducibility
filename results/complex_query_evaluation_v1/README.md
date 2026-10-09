@@ -37,8 +37,9 @@ uv run python -m genofinder_eval.figures.figure_complex_query_relevance
 ```
 
 The first command writes the tables. The second writes nothing: it recomputes the values and
-compares them with the committed tables in `derived/` (tolerance 1e-12). The third draws
-Figure 3 from the committed tables.
+compares them with the committed tables in `derived/` (tolerance 1e-12). The third draws the
+current Figure 3, which shows the v2 assessment (`../complex_query_evaluation_v2/`); the v1
+version of Figure 3 is drawn by the same module at tag `gpb-application-note-public-v2`.
 
 The analysis uses the metric functions in `src/genofinder_eval/external/ranking_metrics.py`. The
 bootstrap uses 10,000 query-level replicates with seed 20260720. The two prespecified paired
@@ -48,11 +49,11 @@ Queries for which a system returned nothing stay in every primary metric.
 | Derived table | Manuscript use |
 |---|---|
 | `metrics_summary.csv`, `pairwise_primary_ndcg.csv` | Primary nDCG@10 and secondary metrics (Table S6, Figure 3B) |
-| `response_availability_*.csv` | Queries with at least one result (Figure 3A) |
+| `response_availability_*.csv` | Queries with at least one result (results text) |
 | `condition_metrics_*.csv` | Strict all-condition Success@10 (Figure 3C) |
 | `metrics_by_difficulty.csv`, `condition_metrics_by_difficulty.csv` | Difficulty strata (Table S7) |
 | `latency_summary.csv` | Collector wall time; not browser latency |
-| `posthoc_returned_candidate_yield.csv` | Post-hoc relevant share of returned candidates (Table S6a) |
+| `posthoc_returned_candidate_yield.csv` | Post-hoc relevant share of returned candidates (Table S6a) and the ten-slot composition per query (Figure 3A) |
 | `posthoc_nonempty_sensitivity.csv` | Post-hoc subsets where a comparator returned results |
 | `posthoc_all_systems_nonempty.csv` | Post-hoc subset of 14 queries where all three systems returned results (Table S7 text) |
 

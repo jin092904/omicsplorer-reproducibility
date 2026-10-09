@@ -1,0 +1,17 @@
+condition,lang,metric,n_queries,baseline_mean,condition_mean,mean_difference,queries_up,queries_down,queries_same
+rrf_rerank_no_structured_fields,en,facet_present_at_10,49,0.7772,0.7534,-0.0238,0,3,46
+rrf_rerank_no_structured_fields,en,facet_conjunctive_at_10,49,0.7534,0.7296,-0.0238,0,3,46
+rrf_rerank_no_structured_fields,ko,facet_present_at_10,49,0.7908,0.7806,-0.0102,1,2,46
+rrf_rerank_no_structured_fields,ko,facet_conjunctive_at_10,49,0.75,0.75,0.0,1,1,47
+rrf_rerank_no_design_boost,en,facet_present_at_10,49,0.7772,0.7772,0.0,0,0,49
+rrf_rerank_no_design_boost,en,facet_conjunctive_at_10,49,0.7534,0.7534,0.0,0,0,49
+rrf_rerank_no_design_boost,ko,facet_present_at_10,49,0.7908,0.7704,-0.0204,0,1,48
+rrf_rerank_no_design_boost,ko,facet_conjunctive_at_10,49,0.75,0.75,0.0,0,0,49
+dense_only,en,facet_present_at_10,49,0.7772,0.7789,0.0017,3,4,42
+dense_only,en,facet_conjunctive_at_10,49,0.7534,0.7619,0.0085,3,3,43
+dense_only,ko,facet_present_at_10,49,0.7908,0.7738,-0.017,7,8,34
+dense_only,ko,facet_conjunctive_at_10,49,0.75,0.7534,0.0034,6,6,37
+bm25_only,en,facet_present_at_10,49,0.7772,0.7262,-0.051,5,11,33
+bm25_only,en,facet_conjunctive_at_10,49,0.7534,0.6956,-0.0578,4,11,34
+bm25_only,ko,facet_present_at_10,49,0.7908,0.7398,-0.051,4,11,34
+bm25_only,ko,facet_conjunctive_at_10,49,0.75,0.699,-0.051,4,11,34
