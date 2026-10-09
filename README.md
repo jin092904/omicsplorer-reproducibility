@@ -65,12 +65,15 @@ defined in `protocols/frozen-release-v1/PUBLICATION_SCOPE.md`.
 | `protocols/frozen-release-v1/` | Fail-closed frozen-release contract and templates | Required structure; templates are not completed evidence |
 | `protocols/external-services-v1/` | Prespecified pilot and latency query definitions | Descriptive pilot protocol, not a common relevance benchmark |
 | `protocols/complex-query-evaluation-v1/` | Frozen 60-query human-relevance evaluation protocol and reviewed expected criteria | Prespecified evaluation input; contains no collected results or relevance judgments |
+| `protocols/complex-query-evaluation-v2/` | Frozen v2 protocol (Korean) and the keyword concept groups and search strings, with recorded amendments | Prespecified before the v2 collection; contains no results |
 | `results/historical_internal/` | Historical aggregate tables | Raw per-query responses and complete effective configuration were not retained |
 | `results/browser_2026-07-20/` | Sanitized observations and derived latency summaries | One date and ingress; no concurrency, regional, or SLA inference |
 | `results/metadata_enrichment_pilot_v1/` | Identifier-free observations and aggregate feasibility tables | Write-disabled execution feasibility; no metadata-accuracy, search-latency, or superiority claim |
 | `results/corpus_identity_audit_v1/` | Non-identifying counts used by the corpus figure | Source-side identifier consistency only; no row-level audit, metadata-accuracy, source-completeness, target-restore, or retrieval claim |
 | `results/frozen_retrieval_v1/` | Approved Git-sized public projection of the technically valid private run | 392 sanitized responses and recomputed metrics; large accession TSV remains a checksum-bound release/DOI attachment |
 | `results/complex_query_evaluation_v1/` | Public results of the blinded 60-query assessment: 739 graded judgements, condition judgements, returned accessions and ranks, response hashes, corrections, derived tables, and a post-hoc retrieval-path check | Single annotator who is also the developer; pool-based metrics; the OmicsPlorer arm ran without lexical candidates (see its README) |
+| `results/complex_query_evaluation_v2/` | Public results of the v2 assessment with keyword baselines: 988 new graded judgements, 74 repeated pairs, corrections against GEO, rankings of four runs, keyword strings, and derived tables | Same single annotator, who used ChatGPT to collate record information; differences from a frozen Claude review were resolved against GEO at the annotator's request (see its README) |
+| `results/component_comparison_v2/` | Aggregates of the five-condition component comparison on the internal hard set | Internal facet metrics on a restored CPU server; per-query responses not published |
 
 The exact exclusions and third-party boundary are documented in `THIRD_PARTY_DATA.md`.
 Checksums for public inputs, protocols, and retained results are recorded in `ARTIFACTS.sha256`.

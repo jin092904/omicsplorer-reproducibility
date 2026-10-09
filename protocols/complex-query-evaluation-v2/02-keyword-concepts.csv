@@ -1,0 +1,61 @@
+query_id,concept_groups,organisms,notes
+S01,"Alzheimer's disease|Alzheimer ; microglia|microglial ; @SC",,
+S02,"KRAS ; lung adenocarcinoma|LUAD ; @RNASEQ",,lung tumor is implied by the disease
+S03,"acute lymphoblastic leukemia|lymphoblastic leukemia ; CAR-T|CAR T|chimeric antigen receptor ; @SC",,
+S04,"rheumatoid arthritis ; synovial|synovium",,generic expression profiling is not encoded
+S05,"biofilm ; @RNASEQ",Pseudomonas aeruginosa,
+S06,"SARS-CoV-2|COVID-19|COVID ; peripheral blood|PBMC|PBMCs|blood ; @SC",,immune cells are implied by blood immune response
+S07,"type 2 diabetes|T2D ; beta cell|beta cells|islet|islets",,generic transcriptomics is not encoded
+S08,"dilated cardiomyopathy|DCM ; cardiomyocyte|cardiomyocytes ; @SN",Homo sapiens,heart is implied by cardiomyocytes
+S09,"neural progenitor|neural progenitors|radial glia ; cortex|cortical ; @SC",,developmental profiling is a design term
+S10,"amyotrophic lateral sclerosis|ALS ; spinal cord ; @SPATIAL",,
+S11,"inflammatory bowel disease|IBD|Crohn's disease|ulcerative colitis ; metagenomic|metagenomics|metagenome",,
+S12,"sepsis|septic ; plasma|serum ; proteomic|proteomics|mass spectrometry",Homo sapiens,
+S13,"hepatocellular carcinoma|HCC ; methylation|methylome",,promoter-region profiling is a design term
+S14,"glioblastoma|GBM ; Visium|spatial transcriptomics",Homo sapiens,
+S15,"acetaminophen|APAP|paracetamol ; hepatocyte|hepatocytes",,generic transcriptomics is not encoded
+S16,"aging|ageing|aged ; dermal fibroblast|dermal fibroblasts|skin fibroblast|skin fibroblasts ; @SC",Homo sapiens,
+S17,"endometrium|endometrial ; menstrual cycle ; @SC",Homo sapiens,
+S18,"PM2.5|particulate matter ; airway epithelial|bronchial epithelial|lung epithelial",Homo sapiens,generic expression profiling is not encoded
+S19,"regeneration|regenerating ; heart|cardiac ; @SC",Danio rerio,
+S20,"triple-negative breast cancer|triple negative breast cancer|TNBC ; @SPATIAL",,
+M01,"Parkinson's disease|Parkinson ; substantia nigra|dopaminergic ; @SC",Homo sapiens,
+M02,"glioblastoma|GBM ; infiltrative|margin|periphery|edge ; @SPATIAL ; @SN",,the named comparator region (infiltrative margin) is encoded; tumor core is implied by the disease
+M03,"multiple myeloma|myeloma ; bone marrow ; immune ; @SC",Homo sapiens,
+M04,"systemic lupus erythematosus|lupus|SLE ; skin|cutaneous ; CD4|T cell|T cells ; @SC",,
+M05,"tuberculosis|Mycobacterium tuberculosis ; dual RNA-seq|dual RNA sequencing|host-pathogen ; lung",Mycobacterium tuberculosis,
+M06,"HIV|HIV-1 ; lymph node|lymph nodes ; @SPATIAL",,
+M07,"obesity|obese ; type 2 diabetes|T2D ; adipose ; @SN",Homo sapiens,bulk transcriptomics is generic and is not encoded
+M08,"atherosclerosis|atherosclerotic|plaque ; endothelial ; @SC",,
+M09,"embryonic heart|fetal heart|heart development|cardiac development ; @SPATIAL",Homo sapiens,developmental stages are a design term
+M10,"Huntington's disease|Huntington ; PBMC|PBMCs|peripheral blood mononuclear ; @SC",Homo sapiens,
+M11,"ulcerative colitis|colitis ; microbiome|microbiota|16S",Homo sapiens,host transcriptomics is generic; paired profiling is a design term
+M12,"delirium ; cerebrospinal fluid|CSF ; aptamer|SomaScan|proteomic|proteomics",Homo sapiens,matched case-control is a design term
+M13,"prostate cancer|prostate adenocarcinoma ; ATAC|chromatin accessibility ; @SC",,
+M14,"pancreatic ductal adenocarcinoma|PDAC|pancreatic cancer ; @SN ; MIBI|ion beam|multiplexed ion beam imaging",Homo sapiens,
+M15,"cisplatin ; ovarian cancer|ovarian carcinoma ; @SC",Homo sapiens,cell-line model is a design term
+M16,"hippocampus|hippocampal ; aging|ageing|aged ; @SN",Homo sapiens,
+M17,"preeclampsia|pre-eclampsia ; trophoblast|placenta|placental ; @SN",Homo sapiens,
+M18,"e-cigarette|electronic cigarette|vaping|e-cig ; airway epithelial|bronchial epithelial|airway epithelium",,generic transcriptomics is not encoded
+M19,"organoid|organoids ; intestinal|intestine ; @SC",Mus musculus,
+M20,"melanoma ; tumor-infiltrating lymphocytes|TIL|TILs|T cells ; @SPATIAL ; @SC",,
+C01,"glioblastoma|GBM ; epilepsy|non-neoplastic|non-tumor ; @SC",Homo sapiens,the named control group (epilepsy-surgery cortex) is encoded
+C02,"hepatocellular carcinoma|HCC ; adjacent|non-tumor|paratumor ; @SC",Homo sapiens,the named comparator (adjacent normal) is encoded; pairing is a design term
+C03,"melanoma ; PD-1|anti-PD-1|PD1 ; @RNASEQ",Mus musculus,vehicle control is generic and is not encoded
+C04,"breast cancer ; neoadjuvant ; @SC",Homo sapiens,before and after are a design term
+C05,"non-small cell lung cancer|non-small-cell lung cancer|NSCLC ; immunotherapy|immune checkpoint|PD-1|anti-PD-1|PD-L1 ; response|responder|responders|non-responders ; @SC",Homo sapiens,the named comparator (responders and nonresponders) is encoded
+C06,"melanoma ; immune checkpoint|checkpoint blockade|checkpoint inhibitor|anti-PD-1|PD-1 ; peripheral blood|PBMC|PBMCs|blood ; @SC",Homo sapiens,longitudinal sampling is a design term
+C07,"iPSC|hiPSC|induced pluripotent ; cardiomyocyte|cardiomyocytes ; @RNASEQ",Homo sapiens,time series and 30 days are design terms
+C08,"acetaminophen|APAP|paracetamol ; organoid|organoids ; liver|hepatic",,dose response is a design term
+C09,"TP53|p53 ; CRISPR|knockout ; colorectal|colon cancer|CRC ; organoid|organoids ; @SC",Homo sapiens,
+C10,"immune ; gut|intestine|intestinal ; liver ; lung ; @SC",,the three named tissues are the comparison and are encoded
+C11,"rheumatoid arthritis ; macrophage|macrophages ; T cell|T cells ; @SC",Homo sapiens,
+C12,"Alzheimer's disease|Alzheimer ; microglia|microglial ; @SC",Homo sapiens & Mus musculus,both required organisms are applied; cross-species is a design term
+C13,"type 2 diabetes|T2D|diabetes ; MASLD|NAFLD|NASH|MASH|fatty liver|steatotic|steatosis ; @SN",Homo sapiens,liver tissue is implied by the liver disease
+C14,"pancreatic ductal adenocarcinoma|PDAC|pancreatic cancer ; @SC ; @SPATIAL",,
+C15,"HER2-positive|HER2|ERBB2 ; breast cancer ; @SPATIAL ; hematoxylin|histology|histological|histopathology",Homo sapiens,
+C16,"PBMC|PBMCs|peripheral blood mononuclear ; @SC",Homo sapiens,age and sex stratification is a design term
+C17,"non-small cell lung cancer|non-small-cell lung cancer|NSCLC ; @SC",Homo sapiens,EGFR and ALK conditions are exclusions and are judged afterward
+C18,"multiple myeloma|myeloma ; bone marrow ; immune ; @SC",Homo sapiens,newly diagnosed treatment-naive cohort is a design term; prior treatment is an exclusion
+C19,"clear cell renal cell carcinoma|ccRCC|renal cell carcinoma ; adjacent|normal kidney|non-tumor ; @SN",Homo sapiens,the named comparator (adjacent normal kidney) is encoded
+C20,"triple-negative breast cancer|triple negative breast cancer|TNBC ; @SPATIAL",Homo sapiens,neighborhood and ligand-receptor analyses are analysis terms
