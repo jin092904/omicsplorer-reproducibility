@@ -95,18 +95,21 @@ def load_public_results_v2(results_dir: Path, v1_dir: Path, criteria_path: Path)
         raise ValueError("v2 condition judgements and qrels cover different pairs")
     # received grades = final grades with the grade corrections reverted
     received = dict(new_grades)
-    retest = [{**row, "v1_grade": int(row["v1_grade"]), "v2_received_grade": int(row["v2_received_grade"]),
-               "v2_final_grade": int(row["v2_final_grade"])} for row in _read_csv(results_dir / "retest_pairs.csv")]
-    retest_ids = {row["judgment_id"] for row in retest}
-    for row in _read_csv(results_dir / "judgment_corrections.csv"):
-        pair = (row["qid"], row["accession"])
-        if row["field"] == "grade" and row["judgment_id"] not in retest_ids:
-            if received[pair] != int(row["corrected_value"]):
+    retest: list[dict[str, Any]] = [
+        {**raw, "v1_grade": int(raw["v1_grade"]), "v2_received_grade": int(raw["v2_received_grade"]),
+         "v2_final_grade": int(raw["v2_final_grade"])}
+        for raw in _read_csv(results_dir / "retest_pairs.csv")
+    ]
+    retest_ids = {pair_row["judgment_id"] for pair_row in retest}
+    for correction in _read_csv(results_dir / "judgment_corrections.csv"):
+        pair = (correction["qid"], correction["accession"])
+        if correction["field"] == "grade" and correction["judgment_id"] not in retest_ids:
+            if received[pair] != int(correction["corrected_value"]):
                 raise ValueError(f"grade correction for {pair} does not match the qrels")
-            received[pair] = int(row["received_value"])
-    for row in retest:
-        if v1_qrels[row["qid"]].get(row["accession"]) != row["v1_grade"]:
-            raise ValueError(f"retest pair {row['judgment_id']} differs from the v1 qrels")
+            received[pair] = int(correction["received_value"])
+    for pair_row in retest:
+        if v1_qrels[pair_row["qid"]].get(pair_row["accession"]) != pair_row["v1_grade"]:
+            raise ValueError(f"retest pair {pair_row['judgment_id']} differs from the v1 qrels")
     rankings = {**_rankings(results_dir / "rankings.csv", (*MAIN_SYSTEMS, ARMS["E"]), qids),
                 **_rankings(v1_dir / "rankings.csv", V1_SYSTEMS, qids)}
     for (system, qid), ranking in rankings.items():
