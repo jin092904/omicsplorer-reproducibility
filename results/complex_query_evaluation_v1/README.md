@@ -37,8 +37,9 @@ uv run python -m genofinder_eval.figures.figure_complex_query_relevance
 ```
 
 The first command writes the tables. The second writes nothing: it recomputes the values and
-compares them with the committed tables in `derived/` (tolerance 1e-12). The third draws
-Figure 3 from the committed tables.
+compares them with the committed tables in `derived/` (tolerance 1e-12). The third draws the
+current Figure 3, which shows the v2 assessment (`../complex_query_evaluation_v2/`); the v1
+version of Figure 3 is drawn by the same module at tag `gpb-application-note-public-v2`.
 
 The analysis uses the metric functions in `src/genofinder_eval/external/ranking_metrics.py`. The
 bootstrap uses 10,000 query-level replicates with seed 20260720. The two prespecified paired

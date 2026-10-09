@@ -1,11 +1,15 @@
 """Render the blinded relevance comparison (Figure 3 of the manuscript).
 
+The figure shows the v2 assessment: OmicsPlorer (arm A) against keyword searches of NCBI GEO
+DataSets (arm B) and OmicsDI (arm C) on the 60 frozen queries, scored with the extended qrels.
 Panel A shows what filled each system's ten result slots per query: graded relevant candidates,
 candidates graded not relevant, and slots left empty because the system returned fewer than ten
-results. Panel B shows mean nDCG@10 and panel C strict Success@10, where a hit must meet every
-required condition. Values and 95% bootstrap intervals are read from
-results/complex_query_evaluation_v1/derived/, so the figure always matches the committed tables. The command-line entry point writes PNG, PDF, and
-a 600-dpi RGB TIFF to build/complex_query_evaluation_v1 by default.
+results. Panel B shows mean nDCG@10. Panel C shows, for each system, the relevant candidates per
+query split into those that neither other system returned and those that another system also
+returned. Values and 95% bootstrap intervals are read from
+results/complex_query_evaluation_v2/derived/, so the figure always matches the committed tables.
+The command-line entry point writes PNG, PDF, and a 600-dpi RGB TIFF to
+build/complex_query_evaluation_v2 by default.
 """
 from __future__ import annotations
 
@@ -27,9 +31,10 @@ from matplotlib.ticker import MultipleLocator
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_DERIVED = ROOT / "results" / "complex_query_evaluation_v1" / "derived"
+DEFAULT_DERIVED = ROOT / "results" / "complex_query_evaluation_v2" / "derived"
 
-SYSTEMS = ("omicsplorer_geo", "ncbi_geo", "omicsdi_geo")
+SYSTEMS = ("omicsplorer_fixed_index", "ncbi_geo_keyword", "omicsdi_geo_keyword")
+ARM_LETTERS = ("A", "B", "C")
 LABELS = ("OmicsPlorer", "NCBI GEO", "OmicsDI")
 COLORS = ("#0072B2", "#6E7781", "#D55E00")
 
@@ -45,11 +50,12 @@ class Estimate:
 class PanelValues:
     n_queries: int
     nonempty_queries: tuple[int, ...]
-    nonempty_fraction: tuple[float, ...]
     ndcg_at_10: tuple[Estimate, ...]
-    strict_success_at_10: tuple[Estimate, ...]
     # Per-query means of grade-3, grade-2, and grade-0/1 candidates in each system's top 10.
     slot_composition: tuple[tuple[float, float, float], ...]
+    # Relevant query-candidate pairs each system returned, and those no other system returned.
+    relevant_found: tuple[int, ...]
+    relevant_found_only_here: tuple[int, ...]
 
 
 def _read(path: Path) -> list[dict[str, str]]:
@@ -75,48 +81,40 @@ def _estimates(rows: list[dict[str, str]]) -> tuple[Estimate, ...]:
 
 
 def load_panel_values(derived_dir: Path = DEFAULT_DERIVED) -> PanelValues:
-    nonempty = _rows(_read(derived_dir / "response_availability_summary.csv"), "nonempty_response")
-    ndcg = _rows(_read(derived_dir / "metrics_summary.csv"), "ndcg_at_10")
-    strict = _rows(
-        _read(derived_dir / "condition_metrics_summary.csv"),
-        "strict_all_conditions_success_at_10",
-    )
-    yield_rows = [
-        row
-        for row in _read(derived_dir / "posthoc_returned_candidate_yield.csv")
-        if row["scope"] == "all"
-    ]
-    yields = []
+    summary = _read(derived_dir / "metrics_summary.csv")
+    ndcg = _rows(summary, "ndcg_at_10")
+    nonempty = _rows(summary, "nonempty")
+    per_query = _read(derived_dir / "metrics_per_query.csv")
+    slots, relevant_found = [], []
     for system in SYSTEMS:
-        matches = [row for row in yield_rows if row["system"] == system]
-        if len(matches) != 1:
-            raise ValueError(f"expected one candidate-yield row for {system}, found {len(matches)}")
-        yields.append(matches[0])
-    query_counts = {int(row["n_queries"]) for row in nonempty + ndcg + strict + yields}
+        rows = [row for row in per_query if row["system"] == system]
+        if not rows:
+            raise ValueError(f"no per-query rows for {system}")
+        returned = sum(int(row["returned"]) for row in rows)
+        relevant = sum(int(row["relevant_returned"]) for row in rows)
+        grade3 = sum(int(row["grade3_returned"]) for row in rows)
+        if not 0 <= grade3 <= relevant <= returned <= 10 * len(rows):
+            raise ValueError(f"inconsistent candidate counts for {system}")
+        slots.append((grade3 / len(rows), (relevant - grade3) / len(rows), (returned - relevant) / len(rows)))
+        relevant_found.append(relevant)
+    query_counts = {int(row["n_queries"]) for row in ndcg + nonempty}
+    query_counts |= {sum(row["system"] == system for row in per_query) for system in SYSTEMS}
     if len(query_counts) != 1:
         raise ValueError(f"panels use different query counts: {sorted(query_counts)}")
     n_queries = query_counts.pop()
-    fractions = tuple(float(row["mean"]) for row in nonempty)
+    overlap = {row["arms"]: int(row["relevant_candidates"])
+               for row in _read(derived_dir / "relevant_overlap.csv")}
+    for letter, system, found in zip(ARM_LETTERS, SYSTEMS, relevant_found, strict=True):
+        in_overlap = sum(count for arms, count in overlap.items() if letter in arms.split("+"))
+        if in_overlap != found:
+            raise ValueError(f"overlap table and per-query counts differ for {system}")
     return PanelValues(
         n_queries=n_queries,
-        nonempty_queries=tuple(round(fraction * n_queries) for fraction in fractions),
-        nonempty_fraction=fractions,
+        nonempty_queries=tuple(round(float(row["mean"]) * n_queries) for row in nonempty),
         ndcg_at_10=_estimates(ndcg),
-        strict_success_at_10=_estimates(strict),
-        slot_composition=tuple(_slot_composition(row, n_queries) for row in yields),
-    )
-
-
-def _slot_composition(row: dict[str, str], n_queries: int) -> tuple[float, float, float]:
-    returned = int(row["returned_candidates"])
-    relevant = int(row["relevant_candidates"])
-    grade3 = int(row["grade3_candidates"])
-    if not 0 <= grade3 <= relevant <= returned <= 10 * n_queries:
-        raise ValueError(f"inconsistent candidate counts for {row['system']}")
-    return (
-        grade3 / n_queries,
-        (relevant - grade3) / n_queries,
-        (returned - relevant) / n_queries,
+        slot_composition=tuple(slots),
+        relevant_found=tuple(relevant_found),
+        relevant_found_only_here=tuple(overlap.get(letter, 0) for letter in ARM_LETTERS),
     )
 
 
@@ -225,9 +223,38 @@ def _slot_legend(fig: Figure) -> None:
                bbox_to_anchor=(0.5, 0.0), handlelength=1.4)
 
 
+# Panel C shades: one muted hue so the legend matches every bar.
+FOUND_ONLY_HERE = "#6B6280"
+FOUND_ELSEWHERE = "#CDC8D8"
+
+
+def _overlap(axis: Axes, values: PanelValues) -> None:
+    """Stack relevant candidates per query: returned by no other system, then also returned elsewhere."""
+    x = np.arange(len(SYSTEMS))
+    n = values.n_queries
+    only = [count / n for count in values.relevant_found_only_here]
+    shared = [(found - here) / n for found, here
+              in zip(values.relevant_found, values.relevant_found_only_here, strict=True)]
+    axis.bar(x, only, 0.62, color=FOUND_ONLY_HERE, zorder=3)
+    axis.bar(x, shared, 0.62, bottom=only, color=FOUND_ELSEWHERE, zorder=3)
+    for position, found, here in zip(x, values.relevant_found, values.relevant_found_only_here, strict=True):
+        axis.text(position, found / n + 0.15, f"{round(100 * here / found)}%", ha="center",
+                  va="bottom", fontsize=6.3, color=INK)
+    axis.set_xticks(x, LABELS)
+    axis.set_xlim(-0.6, 2.6)
+    axis.set_ylim(0, 8.2)
+    axis.set_yticks([0, 2, 4, 6, 8])
+    axis.yaxis.set_minor_locator(MultipleLocator(1))
+    axis.legend(
+        handles=[Patch(color=FOUND_ONLY_HERE, label="Found by no other service"),
+                 Patch(color=FOUND_ELSEWHERE, label="Also found by another")],
+        loc="upper right", frameon=False, fontsize=5.6, handlelength=1.2, borderaxespad=0.2,
+    )
+
+
 def render(out_dir: Path | None = None, derived_dir: Path = DEFAULT_DERIVED) -> PanelValues:
     values = load_panel_values(derived_dir)
-    out_dir = out_dir or ROOT / "build" / "complex_query_evaluation_v1"
+    out_dir = out_dir or ROOT / "build" / "complex_query_evaluation_v2"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     def series(estimates: tuple[Estimate, ...]) -> tuple[list[float], ...]:
@@ -236,7 +263,6 @@ def render(out_dir: Path | None = None, derived_dir: Path = DEFAULT_DERIVED) -> 
         )
 
     ndcg = series(values.ndcg_at_10)
-    strict = series(values.strict_success_at_10)
     slots = list(values.slot_composition)
 
     plt.rcdefaults()
@@ -255,9 +281,9 @@ def render(out_dir: Path | None = None, derived_dir: Path = DEFAULT_DERIVED) -> 
     axes[1].set_ylabel("Mean nDCG@10", fontsize=7, color=INK)
     _strip(axes[1], "Graded relevance ranking", "B")
 
-    _bars(axes[2], strict[0], [f"{mean:.3f}" for mean in strict[0]], strict[1], strict[2])
-    axes[2].set_ylabel("Strict Success@10", fontsize=7, color=INK)
-    _strip(axes[2], "Strict condition success", "C")
+    _overlap(axes[2], values)
+    axes[2].set_ylabel("Relevant candidates per query", fontsize=7, color=INK)
+    _strip(axes[2], "Who else found them", "C")
     _slot_legend(fig)
 
     # GPB: figure titles and legends belong in the manuscript, not in the image.
@@ -297,7 +323,7 @@ def main() -> int:
     parser.add_argument(
         "--out-dir",
         type=Path,
-        default=ROOT / "build" / "complex_query_evaluation_v1",
+        default=ROOT / "build" / "complex_query_evaluation_v2",
         help="Output directory for fig_complex_query_relevance.png, .pdf, and .tiff.",
     )
     args = parser.parse_args()
